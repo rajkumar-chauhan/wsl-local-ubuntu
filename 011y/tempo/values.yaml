@@ -1,0 +1,199 @@
+tempo:
+  mode: distributed
+  # global:
+  #   dnsService: "coredns"
+  tempo:
+    image:
+      registry: docker.io 
+      repository: grafana/tempo
+      tag: null
+
+  traces:
+    otlp:
+      http:
+        enabled: true
+      grpc:
+        enabled: true
+  gateway:
+    enabled: true
+    replicas: 1
+    autoscaling:
+      enabled: false
+    # resources: 
+    #   requests:
+    #     cpu: "0.1"
+    #     memory: 300Mi
+    #   limits:
+    #     cpu: "0.15"
+    #     memory: 300Mi
+    tolerations:
+      - key: "team"
+        operator: "Equal"
+        value: "o11y"
+        effect: "NoSchedule"
+    # nodeSelector:
+    #   node-role.kubernetes.io/o11y: o11y
+        
+  ingester:
+    image:
+      repository: grafana/tempo
+      tag: null
+    replicas: 2
+    # resources:
+    #   requests:
+    #     cpu: "0.1"
+    #     memory: "300Mi"
+    #   limits:
+    #     cpu: "0.2"
+    #     memory: "500Mi"
+    tolerations:
+      - key: "team"
+        operator: "Equal"
+        value: "o11y"
+        effect: "NoSchedule"
+    # nodeSelector:
+    #   node-role.kubernetes.io/o11y: o11y
+    persistence:
+      enabled: true
+      size: 3Gi
+
+  metricsGenerator:
+    enabled: false
+    # resources:
+    #   requests:
+    #     cpu: "0.2"
+    #     memory: "200Mi"
+    #   limits:
+    #     cpu: "0.4"
+    #     memory: "400Mi"
+    config:
+      storage:
+        remote_write:
+          - url: "http://vminsert-vm.monitoring.svc:8480/insert/0/prometheus/api/v1/write"
+    tolerations:
+      - key: "team"
+        operator: "Equal"
+        value: "o11y"
+        effect: "NoSchedule"
+    # nodeSelector:
+    #   node-role.kubernetes.io/o11y: o11y
+
+  distributor:
+    image:
+      repository: grafana/tempo
+      tag: null
+    autoscaling:
+      enabled: false
+      minReplicas: 1
+      maxReplicas: 3
+      targetCPUUtilizationPercentage: 70
+      targetMemoryUtilizationPercentage:
+    # resources:
+    #   requests:
+    #     cpu: "0.2"
+    #     memory: "200Mi"
+    #   limits:
+    #     cpu: "0.4"
+    #     memory: "400Mi"
+    tolerations:
+      - key: "team"
+        operator: "Equal"
+        value: "o11y"
+        effect: "NoSchedule"
+    # nodeSelector:
+    #   node-role.kubernetes.io/o11y: o11y
+    
+  compactor: 
+    image:
+      repository: grafana/tempo
+      tag: null
+    config:
+      compaction:
+        block_retention: 48h
+        compacted_block_retention: 1h
+        compaction_window: 1h
+        v2_in_buffer_bytes: 5242880
+        v2_out_buffer_bytes: 20971520
+        max_compaction_objects: 6000000
+        max_block_bytes: 107374182400
+        retention_concurrency: 10
+        v2_prefetch_traces_count: 1000
+        max_time_per_tenant: 5m
+        compaction_cycle: 30s
+    # resources: 
+    #   requests:
+    #     cpu: "0.3"
+    #     memory: "300Mi"
+    #   limits:
+    #     cpu: "0.5"
+    #     memory: "500Mi"
+    tolerations:
+      - key: "team"
+        operator: "Equal"
+        value: "o11y"
+        effect: "NoSchedule"
+    # nodeSelector:
+    #   node-role.kubernetes.io/o11y: o11y
+
+  querier:
+    image:
+      repository: grafana/tempo
+      tag: null
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 3
+    behavior: {}
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage:  
+    config:
+      max_concurrent_queries: 20
+    # resources: 
+    #   requests:
+    #     cpu: "0.2"
+    #     memory: "200Mi"
+    #   limits:
+    #     cpu: "0.4"
+    #     memory: "400Mi"
+    tolerations:
+      - key: "team"
+        operator: "Equal"
+        value: "o11y"
+        effect: "NoSchedule"
+    # nodeSelector:
+    #   node-role.kubernetes.io/o11y: o11y
+
+  queryFrontend:
+    image:
+      repository: grafana/tempo
+      tag: null
+    # resources: 
+    #   requests:
+    #     cpu: "0.3"
+    #     memory: "300Mi"
+    #   limits:
+    #     cpu: "0.5"
+    #     memory: "500Mi"
+    tolerations:
+      - key: "team"
+        operator: "Equal"
+        value: "o11y"
+        effect: "NoSchedule"
+    # nodeSelector:
+    #   node-role.kubernetes.io/o11y: o11y
+   
+  memcached:
+    enabled: true
+    # resources: 
+    #   requests:
+    #     cpu: "0.3"
+    #     memory: "300Mi"
+    #   limits:
+    #     cpu: "0.5"
+    #     memory: "500Mi"
+    tolerations:
+      - key: "team"
+        operator: "Equal"
+        value: "o11y"
+        effect: "NoSchedule"
+    # nodeSelector:
+    #   node-role.kubernetes.io/o11y: o11y

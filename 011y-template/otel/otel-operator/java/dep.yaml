@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: java-sample
+  namespace: observability
+  labels:
+    app: java-sample
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: java-sample
+  template:
+    metadata:
+      labels:
+        app: java-sample
+      annotations:
+        instrumentation.opentelemetry.io/inject-java: "true"
+    spec:
+      containers:
+        - name: java-sample
+          image: java-sample-nonroot:1.0
+          ports:
+            - containerPort: 8080
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+

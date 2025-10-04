@@ -1,0 +1,21 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: salary-api-health-trace
+  namespace: ram-ns
+spec:
+  schedule: "*/1 * * * *"  
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: salary-api-health-curl
+              image: curlimages/curl
+              command: ["/bin/sh", "-c"]
+              args:
+                - |
+                  echo "Hitting Salary API Health Check..."; \
+                  curl -s http://salary-api-service.ram-ns.svc.cluster.local:8081/actuator/health || true;
+          restartPolicy: Never
+

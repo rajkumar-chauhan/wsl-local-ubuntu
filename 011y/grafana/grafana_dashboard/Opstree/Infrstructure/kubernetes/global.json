@@ -1,0 +1,625 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 103,
+  "links": [],
+  "panels": [
+    {
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "<div style=\"background-color: #063970; padding: 20px; text-align: center; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);\">\n  <h1 style=\"color: #ecf0f1; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 32px; margin: 0; letter-spacing: 2px;\">\n    🌍 <strong style=\"font-weight: 900;\">Global Summary</strong>\n  </h1>\n</div>",
+        "mode": "markdown"
+      },
+      "pluginVersion": "11.6.1",
+      "title": "",
+      "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "center",
+            "cellOptions": {
+              "type": "auto",
+              "wrapText": false
+            },
+            "filterable": true,
+            "inspect": false
+          },
+          "links": [
+            {
+              "targetBlank": true,
+              "title": "global ",
+              "url": "https://grafana.k8s.opstree.dev/d/k8s_views_global/global?orgId=1&var-datasource=victoriametrics&var-resolution=30s&var-job=node-exporter&${__url_time_range}"
+            }
+          ],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-green"
+              },
+              {
+                "color": "dark-green",
+                "value": 70
+              },
+              {
+                "color": "#EAB839",
+                "value": 80
+              },
+              {
+                "color": "dark-red",
+                "value": 90
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "CPU Usage %"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "lcd",
+                  "type": "gauge",
+                  "valueDisplayMode": "color"
+                }
+              },
+              {
+                "id": "max",
+                "value": 100
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Memory Usage %"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "lcd",
+                  "type": "gauge",
+                  "valueDisplayMode": "color"
+                }
+              },
+              {
+                "id": "max",
+                "value": 100
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Nodes"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "targetBlank": true,
+                    "title": "Node Summary",
+                    "url": "https://grafana.k8s.opstree.dev/d/ceu6zcbqkh88we12345/node-summary?orgId=1&${__url_time_range}\n"
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Namespace"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "targetBlank": true,
+                    "title": "namespace",
+                    "url": "https://grafana.k8s.opstree.dev/d/ceuu67jhlshdsabc/namespace-summary?orgId=1&${__url_time_range}"
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "CPU Request %"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "lcd",
+                  "type": "gauge",
+                  "valueDisplayMode": "color"
+                }
+              },
+              {
+                "id": "max",
+                "value": 100
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Memory Request %"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "lcd",
+                  "type": "gauge",
+                  "valueDisplayMode": "color"
+                }
+              },
+              {
+                "id": "max",
+                "value": 100
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 3
+      },
+      "id": 1,
+      "options": {
+        "cellHeight": "md",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "11.6.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "count(count by (cluster, node) (kube_node_info)) by (cluster)\r\n",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "{{cluster}}",
+          "range": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "count(kube_namespace_created) by (cluster)",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "{{Namespace}}",
+          "range": false,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "(avg(sum by ( instance,cpu) (rate(node_cpu_seconds_total{mode!~\"idle|iowait|steal\", cluster=~\"$cluster\", job=\"$job\"}[$__rate_interval]))))*100",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "{{Cpu}}",
+          "range": false,
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "(sum(node_memory_MemTotal_bytes{ cluster=~\"$cluster\", job=\"$job\"} - node_memory_MemAvailable_bytes{ cluster=~\"$cluster\", job=\"$job\"}) / sum(node_memory_MemTotal_bytes{ cluster=~\"$cluster\", job=\"$job\"}))*100",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "{{Memory}}",
+          "range": false,
+          "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "up{k8s_cluster=\"\"}",
+          "format": "table",
+          "hide": true,
+          "instant": false,
+          "legendFormat": "{{cluster}}",
+          "range": true,
+          "refId": "F"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "avg(sum by (core) (rate(windows_cpu_time_total{mode!=\"idle\", cluster=~\"$cluster\"}[$__rate_interval])))",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "G"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "(sum(kube_pod_container_resource_requests{resource=\"cpu\", cluster=~\"$cluster\"}) / sum(machine_cpu_cores{cluster=~\"$cluster\"}))*100",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "H"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "(sum(kube_pod_container_resource_requests{resource=\"memory\", cluster=~\"$cluster\"}) / sum(machine_memory_bytes{ cluster=~\"$cluster\"}))*100",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "{{Memory Request %}}",
+          "range": false,
+          "refId": "I"
+        }
+      ],
+      "title": "",
+      "transformations": [
+        {
+          "id": "joinByField",
+          "options": {
+            "byField": "Time",
+            "mode": "outer"
+          }
+        },
+        {
+          "disabled": true,
+          "id": "calculateField",
+          "options": {
+            "alias": "Cluster",
+            "mode": "index",
+            "reduce": {
+              "reducer": "sum"
+            }
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "Value #F": true,
+              "__name__": true,
+              "cluster": false,
+              "cluster 2": true,
+              "component": true,
+              "env": true,
+              "instance": true,
+              "job": true,
+              "k8s_cluster": false,
+              "prometheus": true
+            },
+            "includeByName": {},
+            "indexByName": {
+              "Time": 0,
+              "Value #A": 3,
+              "Value #B": 4,
+              "Value #C": 6,
+              "Value #D": 8,
+              "Value #H": 5,
+              "Value #I": 7,
+              "cluster 1": 2,
+              "cluster 2": 1
+            },
+            "renameByName": {
+              "(sum(kube_pod_container_resource_requests{resource=\"cpu\", cluster=~\".*\"}) / sum(machine_cpu_cores{ cluster=~\".*\"}))*100": "CPU Request %",
+              "(sum(kube_pod_container_resource_requests{resource=\"cpu\", cluster=~\".*\"}) / sum(machine_cpu_cores{cluster=~\".*\"}))*100": "Memory Request %",
+              "(sum(kube_pod_container_resource_requests{resource=\"memory\", cluster=~\".*\"}) / sum(machine_memory_bytes{ cluster=~\".*\"}))*100": "Memory Request %",
+              "Value": "Nodes",
+              "Value #A": "Nodes",
+              "Value #B": "Namespace",
+              "Value #C": "CPU Usage %",
+              "Value #D": "Memory Usage %",
+              "Value #E": "Pods",
+              "Value #H": "CPU Request %",
+              "Value #I": "Memory Request %",
+              "__name__": "",
+              "cluster": "Cluster",
+              "cluster 1": "Cluster",
+              "cluster 2": "Cluster",
+              "count(count by (node) (kube_node_info{ cluster=~\".*\"}))": "Nodes",
+              "k8s_cluster": "Cluster",
+              "sum(kube_pod_container_resource_requests{resource=\"cpu\", cluster=~\".*\"}) / sum(machine_cpu_cores{ cluster=~\".*\"})": "CPU Request %"
+            }
+          }
+        },
+        {
+          "id": "groupBy",
+          "options": {
+            "fields": {
+              "(sum(kube_pod_container_resource_requests{resource=\"cpu\", cluster=~\".*\"}) / sum(machine_cpu_cores))*100": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "CPU": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "CPU ": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "CPU Request %": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "CPU Usage": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "CPU Usage %": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Cluster": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "LDC": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Memory Request %": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Memory Usage": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Memory Usage %": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Namespace": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Nodes": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Pods": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Time": {
+                "aggregations": []
+              },
+              "Value": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Value #A": {
+                "aggregations": []
+              },
+              "Value #B": {
+                "aggregations": []
+              },
+              "Value #C": {
+                "aggregations": []
+              },
+              "Value #D": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Value #E": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Value #F": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "availability_zone": {
+                "aggregations": []
+              },
+              "cluster": {
+                "aggregations": []
+              },
+              "count(count by (node) (kube_node_info{ cluster=~\".*\"}))": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "count(kube_namespace_created{ cluster=~\".*\"})": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "k8s_cluster": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "namespace": {
+                "aggregations": []
+              }
+            }
+          }
+        }
+      ],
+      "type": "table"
+    }
+  ],
+  "preload": false,
+  "schemaVersion": 41,
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "text": ".*",
+          "value": ".*"
+        },
+        "hide": 2,
+        "name": "cluster",
+        "query": ".*",
+        "skipUrlSync": true,
+        "type": "constant"
+      },
+      {
+        "current": {
+          "text": "VictoriaMetrics",
+          "value": "victoriametrics"
+        },
+        "hide": 2,
+        "name": "datasource",
+        "options": [],
+        "query": "prometheus",
+        "refresh": 1,
+        "regex": "VictoriaMetrics",
+        "type": "datasource"
+      },
+      {
+        "current": {
+          "text": "node-exporter",
+          "value": "node-exporter"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
+        "definition": "label_values(node_cpu_seconds_total{cluster=~\"$cluster\", job!~\"Ashwathama|hanuman|ldc|hercules|Hercules|Hanuman|op-srv-01\"},job)",
+        "hide": 2,
+        "name": "job",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(node_cpu_seconds_total{cluster=~\"$cluster\", job!~\"Ashwathama|hanuman|ldc|hercules|Hercules|Hanuman|op-srv-01\"},job)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "type": "query"
+      },
+      {
+        "baseFilters": [],
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
+        "filters": [],
+        "name": "Filters",
+        "type": "adhoc"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-5m",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Global Summary",
+  "uid": "aeurra0e63ym8f12a",
+  "version": 5
+}

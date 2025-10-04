@@ -1,0 +1,25 @@
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMPodScrape
+metadata:
+  name: custom-label
+  namespace: monitoring
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: opentelemetry-demo
+  podMetricsEndpoints:
+  - port: metrics
+    relabelConfigs:
+    - action: replace
+      sourceLabels: [__meta_kubernetes_pod_label_environment]
+      targetLabel: environment
+    - action: replace
+      sourceLabels: [__meta_kubernetes_pod_label_application_group]
+      targetLabel: application_group
+    - action: replace
+      sourceLabels: [__meta_kubernetes_pod_label_technology]
+      targetLabel: technology
+    - action: replace
+      sourceLabels: [__meta_kubernetes_pod_label_type]
+      targetLabel: type
+

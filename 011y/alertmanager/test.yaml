@@ -1,0 +1,121 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "12"
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"labels":{"app.kubernetes.io/component":"ad","app.kubernetes.io/instance":"opentelemetry-demo","app.kubernetes.io/name":"ad","app.kubernetes.io/part-of":"opentelemetry-demo","app.kubernetes.io/version":"2.0.2","opentelemetry.io/name":"ad"},"name":"ad","namespace":"otel-demo"},"spec":{"replicas":1,"revisionHistoryLimit":10,"selector":{"matchLabels":{"opentelemetry.io/name":"ad"}},"template":{"metadata":{"labels":{"app.kubernetes.io/component":"ad","app.kubernetes.io/instance":"opentelemetry-demo","app.kubernetes.io/name":"ad","opentelemetry.io/name":"ad"}},"spec":{"containers":[{"env":[{"name":"OTEL_SERVICE_NAME","valueFrom":{"fieldRef":{"apiVersion":"v1","fieldPath":"metadata.labels['app.kubernetes.io/component']"}}},{"name":"OTEL_COLLECTOR_NAME","value":"otel-collector"},{"name":"OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE","value":"cumulative"},{"name":"AD_PORT","value":"8080"},{"name":"FLAGD_HOST","value":"flagd"},{"name":"FLAGD_PORT","value":"8013"},{"name":"OTEL_EXPORTER_OTLP_ENDPOINT","value":"http://$(OTEL_COLLECTOR_NAME):4318"},{"name":"OTEL_LOGS_EXPORTER","value":"otlp"},{"name":"OTEL_RESOURCE_ATTRIBUTES","value":"service.name=$(OTEL_SERVICE_NAME),service.namespace=opentelemetry-demo,service.version=2.0.2"}],"image":"ghcr.io/open-telemetry/demo:2.0.2-ad","imagePullPolicy":"IfNotPresent","name":"ad","ports":[{"containerPort":8080,"name":"service"}],"resources":{"limits":{"memory":"300Mi"}},"volumeMounts":null}],"serviceAccountName":"opentelemetry-demo","volumes":null}}}}
+  creationTimestamp: "2025-07-28T10:18:33Z"
+  generation: 16
+  labels:
+    app.kubernetes.io/component: ad
+    app.kubernetes.io/instance: opentelemetry-demo
+    app.kubernetes.io/name: ad
+    app.kubernetes.io/part-of: opentelemetry-demo
+    app.kubernetes.io/version: 2.0.2
+    k8slens-edit-resource-version: v1
+    opentelemetry.io/name: ad
+  name: ad
+  namespace: otel-demo
+  resourceVersion: "65903437"
+  uid: 43000868-a334-4109-9904-5e39f2a404cb
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      opentelemetry.io/name: ad
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/restartedAt: "2025-09-03T08:02:51Z"
+      creationTimestamp: null
+      labels:
+        app.kubernetes.io/component: ad
+        app.kubernetes.io/instance: opentelemetry-demo
+        app.kubernetes.io/name: ad
+        application/group: AstronomyEcom
+        environment: prod
+        opentelemetry.io/name: ad
+        technology: java
+        type: backend
+    spec:
+      containers:
+      - env:
+        - name: OTEL_SERVICE_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.labels['app.kubernetes.io/component']
+        - name: OTEL_COLLECTOR_NAME
+          value: otel-collector
+        - name: OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
+          value: cumulative
+        - name: AD_PORT
+          value: "8080"
+        - name: FLAGD_HOST
+          value: flagd
+        - name: FLAGD_PORT
+          value: "8013"
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: http://collector.observability.svc:4318
+        - name: OTEL_LOGS_EXPORTER
+          value: otlp
+        - name: OTEL_RESOURCE_ATTRIBUTES
+          value: service.name=$(OTEL_SERVICE_NAME),service.namespace=opentelemetry-demo,service.version=2.0.2,BU=shopping_discovery,environment=prod,technology=java,application_group=AstronomyEcom,type=backend
+        image: ghcr.io/open-telemetry/demo:2.0.2-ad
+        imagePullPolicy: IfNotPresent
+        name: ad
+        ports:
+        - containerPort: 8080
+          name: service
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 250m
+            memory: 400Mi
+          requests:
+            cpu: 150m
+            memory: 250Mi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: opentelemetry-demo
+      serviceAccountName: opentelemetry-demo
+      terminationGracePeriodSeconds: 30
+      tolerations:
+      - effect: NoSchedule
+        key: team
+        operator: Equal
+        value: o11y
+status:
+  availableReplicas: 1
+  conditions:
+  - lastTransitionTime: "2025-09-03T08:47:27Z"
+    lastUpdateTime: "2025-09-08T17:09:38Z"
+    message: ReplicaSet "ad-7979786996" has successfully progressed.
+    reason: NewReplicaSetAvailable
+    status: "True"
+    type: Progressing
+  - lastTransitionTime: "2025-09-08T23:27:34Z"
+    lastUpdateTime: "2025-09-08T23:27:34Z"
+    message: Deployment has minimum availability.
+    reason: MinimumReplicasAvailable
+    status: "True"
+    type: Available
+  observedGeneration: 16
+  readyReplicas: 1
+  replicas: 1
+  updatedReplicas: 1
+
+ise dekho 

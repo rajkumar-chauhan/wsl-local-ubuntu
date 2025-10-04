@@ -1,0 +1,38 @@
+apiVersion: v1
+data:
+  custom_parsers.conf: |
+    [PARSER]
+        Name docker_no_time
+        Format json
+        Time_Keep Off
+        Time_Key time
+        Time_Format %Y-%m-%dT%H:%M:%S.%L
+  fluent-bit.conf: "[SERVICE]\n    Flush        1\n    Daemon       Off\n    Log_Level
+    \   info\n    Parsers_File parsers.conf\n    HTTP_Server  On\n    HTTP_Listen
+    \ 0.0.0.0\n    HTTP_Port    2020\n\n[INPUT]\n    Name             tail\n    Path
+    \            /var/log/containers/*.log\n    Parser           docker,cri\n    Tag
+    \             kube.*\n    Refresh_Interval 5\n    Rotate_Wait      30\n    Mem_Buf_Limit
+    \   5MB\n    Skip_Long_Lines  On\n    DB               /var/log/flb_kube.db\n
+    \   Ignore_Older     4h\n    multiline.parser docker,cri\n\n[FILTER]\n    Name
+    \               kubernetes\n    Match               kube.*\n    K8S-Logging.Parser
+    \ On\n    K8S-Logging.Exclude Off\n    Keep_Log            On\n    Merge_Log           On\n\n[OUTPUT]\n
+    \   Name              loki\n    Match             *\n    host              loki-gateway.logging.svc.cluster.local\n
+    \   port              80\n    drop_single_key   on                                                                     \n
+    \   labels            namespace=$kubernetes['namespace_name'],container=$kubernetes['container_name'],service_name=$kubernetes['labels']['app'],name=$kubernetes['labels']['app.kubernetes.io/name'],application_group=$kubernetes['labels']['rems/application_group'],rems_service=$kubernetes['labels']['rems/service']\n
+    \   remove_keys       kubernetes\n"
+kind: ConfigMap
+metadata:
+  annotations:
+    meta.helm.sh/release-name: loki
+    meta.helm.sh/release-namespace: logging
+  creationTimestamp: "2025-09-17T07:51:02Z"
+  labels:
+    app.kubernetes.io/instance: loki
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: fluentbit
+    app.kubernetes.io/version: 3.2.10
+    helm.sh/chart: fluentbit-0.48.10
+  name: loki-fluentbit
+  namespace: logging
+  resourceVersion: "1758095462269135000"
+  uid: 1f56583a-1ce6-47f2-b7aa-85c4147bc6e7

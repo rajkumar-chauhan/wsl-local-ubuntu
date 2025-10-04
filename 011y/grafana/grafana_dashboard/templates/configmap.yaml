@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.dashboards.configMapName }}
+data:
+{{- $files := .Files.Glob "Opstree/**.json" }}
+{{- range $path, $file := $files }}
+  {{ $path | replace "/" "__" }}: |
+{{ $file | toString | indent 4 }}
+{{- end }}

@@ -1,0 +1,25 @@
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMStaticScrape
+metadata:
+  name: blackbox-static-endpoints
+  namespace: {{ .Values.namespace }}
+spec:
+  jobName: {{ .Values.endpoints.jobName }}
+  targetEndpoints:
+    - targets:
+{{- range .Values.endpoints.targets }}
+        - {{ . | quote }}
+{{- end }}
+      labels:
+        job: {{ .Values.endpoints.jobName }}
+      scheme: {{ .Values.endpoints.scheme }}
+      path: {{ .Values.endpoints.path }}
+      params:
+        module: [{{ .Values.endpoints.module | quote }}]
+      relabelConfigs:
+        - sourceLabels: [__address__]
+          targetLabel: __param_target
+        - sourceLabels: [__param_target]
+          targetLabel: instance
+        - targetLabel: __address__
+          replacement: {{ .Values.endpoints.replacement | quote }}

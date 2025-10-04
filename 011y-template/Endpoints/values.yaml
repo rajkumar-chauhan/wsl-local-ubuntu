@@ -1,0 +1,16 @@
+namespace: monitoring
+
+endpoints:
+  jobName: blackbox
+  path: /probe
+  scheme: http
+  module: http_2xx
+  replacement: blackbox.monitoring.svc.cluster.local:9115
+  targets:
+    - https://jenkins.opstree.dev/login
+    - http://grafana.k8s.opstree.dev
+    - http://longhorn.k8s.opstree.dev
+    - https://vpn.opstree.dev
+    - https://itms.opstree.dev/
+    - https://registry.ldc.opstree.dev/ 
+    - https://orchestrator.opstree.dev/

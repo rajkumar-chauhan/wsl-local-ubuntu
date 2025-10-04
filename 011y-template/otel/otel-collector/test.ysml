@@ -1,0 +1,407 @@
+Release "operator" has been upgraded. Happy Helming!
+NAME: operator
+LAST DEPLOYED: Fri Sep  5 17:01:02 2025
+NAMESPACE: observability
+STATUS: pending-upgrade
+REVISION: 4
+TEST SUITE: None
+HOOKS:
+MANIFEST:
+---
+# Source: otel-collector/charts/collector/templates/pdb.yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: operator-collector
+  namespace: observability
+  labels:
+    helm.sh/chart: collector-0.123.0
+    app.kubernetes.io/name: collector
+    app.kubernetes.io/instance: operator
+    app.kubernetes.io/version: "0.124.1"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: standalone-collector
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: collector
+      app.kubernetes.io/instance: operator
+---
+# Source: otel-collector/charts/collector/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: operator-collector
+  namespace: observability
+  labels:
+    helm.sh/chart: collector-0.123.0
+    app.kubernetes.io/name: collector
+    app.kubernetes.io/instance: operator
+    app.kubernetes.io/version: "0.124.1"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: standalone-collector
+---
+# Source: otel-collector/charts/collector/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: operator-collector
+  namespace: observability
+  labels:
+    helm.sh/chart: collector-0.123.0
+    app.kubernetes.io/name: collector
+    app.kubernetes.io/instance: operator
+    app.kubernetes.io/version: "0.124.1"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: standalone-collector
+data:
+  relay: |
+    connectors:
+      servicegraph:
+        dimensions:
+        - db.system
+        - messaging.system
+        store:
+          max_items: 500
+          ttl: 5s
+        virtual_node_extra_label: true
+        virtual_node_peer_attributes:
+        - db.name
+        - db.system
+        - messaging.system
+        - peer.service
+      spanmetrics:
+        dimensions:
+        - name: rpc.grpc.status_code
+        - name: rpc.service
+        - name: rpc.system
+        - name: rpc.method
+        - name: http.method
+        - name: http.status_code
+        - name: http.route
+        - name: http.response.status_code
+        dimensions_cache_size: 1000
+        events:
+          dimensions:
+          - name: exception.type
+          - name: exception.message
+          enabled: false
+        exclude_dimensions:
+        - status.code
+        exemplars:
+          enabled: false
+        metrics_expiration: 5m
+        metrics_flush_interval: 15s
+        resource_metrics_key_attributes:
+        - service.name
+        - telemetry.sdk.language
+        - telemetry.sdk.name
+    exporters:
+      debug: {}
+      otlp:
+        compression: snappy
+        endpoint: tempo:4317
+        retry_on_failure:
+          enabled: true
+        sending_queue:
+          enabled: true
+          num_consumers: 10
+          queue_size: 10000
+        timeout: 120s
+        tls:
+          insecure: true
+      prometheusremotewrite:
+        endpoint: http://vmsingle-vm.monitoring.svc.cluster.local:8429/api/v1/write
+        max_batch_size_bytes: 3000000
+        remote_write_queue:
+          enabled: true
+          queue_size: 10000
+        retry_on_failure:
+          enabled: true
+          initial_interval: 5s
+          max_elapsed_time: 300s
+          max_interval: 30s
+        timeout: 120s
+        tls:
+          insecure_skip_verify: true
+    extensions:
+      health_check:
+        endpoint: 0.0.0.0:13133
+      pprof:
+        endpoint: 0.0.0.0:1777
+      zpages:
+        endpoint: 0.0.0.0:55679
+    processors:
+      batch:
+        send_batch_max_size: 10000
+        send_batch_size: 5000
+        timeout: 5s
+      batch/tempo:
+        send_batch_max_size: 128
+        send_batch_size: 64
+        timeout: 5s
+      memory_limiter:
+        check_interval: 5s
+        limit_percentage: 90
+        spike_limit_percentage: 14
+    receivers:
+      jaeger:
+        protocols:
+          grpc:
+            endpoint: ${env:MY_POD_IP}:14250
+          thrift_compact:
+            endpoint: ${env:MY_POD_IP}:6831
+          thrift_http:
+            endpoint: ${env:MY_POD_IP}:14268
+      otlp:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:4317
+            max_recv_msg_size_mib: 16
+          http:
+            endpoint: 0.0.0.0:4318
+      prometheus:
+        config:
+          scrape_configs:
+          - job_name: app-otelcol-metrics
+            scrape_interval: 30s
+            static_configs:
+            - targets:
+              - 127.0.0.1:8889
+      zipkin:
+        endpoint: ${env:MY_POD_IP}:9411
+    service:
+      extensions:
+      - pprof
+      - health_check
+      - zpages
+      pipelines:
+        logs:
+          exporters:
+          - debug
+          processors:
+          - memory_limiter
+          - batch
+          receivers:
+          - otlp
+        metrics:
+          exporters:
+          - prometheusremotewrite
+          processors:
+          - memory_limiter
+          - batch
+          receivers:
+          - otlp
+          - prometheus
+          - spanmetrics
+          - servicegraph
+        traces:
+          exporters:
+          - otlp
+          - spanmetrics
+          - servicegraph
+          processors:
+          - memory_limiter
+          - batch/tempo
+          receivers:
+          - otlp
+      telemetry:
+        metrics:
+          level: detailed
+          readers:
+          - pull:
+              exporter:
+                prometheus:
+                  host: 127.0.0.1
+                  port: 8888
+                  with_resource_constant_labels:
+                    included:
+                    - service.name
+---
+# Source: otel-collector/charts/collector/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: operator-collector
+  namespace: observability
+  labels:
+    helm.sh/chart: collector-0.123.0
+    app.kubernetes.io/name: collector
+    app.kubernetes.io/instance: operator
+    app.kubernetes.io/version: "0.124.1"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: standalone-collector
+    component: standalone-collector
+spec:
+  type: ClusterIP
+  ports:
+    
+    - name: jaeger-compact
+      port: 6831
+      targetPort: 6831
+      protocol: UDP
+    - name: jaeger-grpc
+      port: 14250
+      targetPort: 14250
+      protocol: TCP
+    - name: jaeger-thrift
+      port: 14268
+      targetPort: 14268
+      protocol: TCP
+    - name: otlp
+      port: 4317
+      targetPort: 4317
+      protocol: TCP
+      appProtocol: grpc
+    - name: otlp-http
+      port: 4318
+      targetPort: 4318
+      protocol: TCP
+    - name: zipkin
+      port: 9411
+      targetPort: 9411
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: collector
+    app.kubernetes.io/instance: operator
+    component: standalone-collector
+  internalTrafficPolicy: Cluster
+---
+# Source: otel-collector/charts/collector/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: operator-collector
+  namespace: observability
+  labels:
+    helm.sh/chart: collector-0.123.0
+    app.kubernetes.io/name: collector
+    app.kubernetes.io/instance: operator
+    app.kubernetes.io/version: "0.124.1"
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: standalone-collector
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: collector
+      app.kubernetes.io/instance: operator
+      component: standalone-collector
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        checksum/config: 83516df80cbd29625a92ff3a2831b8b562f38a7ea1f7ffe5d6963bdf51850daf
+        
+      labels:
+        app.kubernetes.io/name: collector
+        app.kubernetes.io/instance: operator
+        component: standalone-collector
+        
+    spec:
+      
+      serviceAccountName: operator-collector
+      securityContext:
+        {}
+      containers:
+        - name: collector
+          args:
+            - --config=/conf/relay.yaml
+          securityContext:
+            {}
+          image: "otel/opentelemetry-collector-contrib:0.129.1"
+          imagePullPolicy: IfNotPresent
+          ports:
+            
+            - name: jaeger-compact
+              containerPort: 6831
+              protocol: UDP
+            - name: jaeger-grpc
+              containerPort: 14250
+              protocol: TCP
+            - name: jaeger-thrift
+              containerPort: 14268
+              protocol: TCP
+            - name: otlp
+              containerPort: 4317
+              protocol: TCP
+            - name: otlp-http
+              containerPort: 4318
+              protocol: TCP
+            - name: zipkin
+              containerPort: 9411
+              protocol: TCP
+          env:
+            - name: MY_POD_IP
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: status.podIP
+            - name: GOMEMLIMIT
+              value: "819MiB"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 13133
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 13133
+          resources:
+            limits:
+              cpu: 1
+              memory: 1Gi
+            requests:
+              cpu: 1
+              memory: 1Gi
+          volumeMounts:
+            - mountPath: /conf
+              name: collector-configmap
+      volumes:
+        - name: collector-configmap
+          configMap:
+            name: operator-collector
+            items:
+              - key: relay
+                path: relay.yaml
+      hostNetwork: false
+---
+# Source: otel-collector/charts/collector/templates/extraManifests.yaml
+apiVersion: opentelemetry.io/v1alpha1
+kind: Instrumentation
+metadata:
+  name: otel-instrumentation
+  namespace: observability
+spec:
+  dotnet:
+    env:
+    - name: OTEL_EXPORTER_OTLP_ENDPOINT
+      value: http://vm-collector.observability.svc.cluster.local:4318
+  exporter:
+    endpoint: http://vm-collector.observability.svc.cluster.local:4317
+  go:
+    env:
+    - name: OTEL_EXPORTER_OTLP_ENDPOINT
+      value: http://vm-collector.observability.svc.cluster.local:4318
+  java:
+    env:
+    - name: OTEL_EXPORTER_OTLP_PROTOCOL
+      value: grpc
+    - name: OTEL_LOGS_EXPORTER
+      value: none
+    - name: OTEL_EXPORTER_OTLP_ENDPOINT
+      value: http://vm-collector.observability.svc.cluster.local:4317
+  propagators:
+  - tracecontext
+  - baggage
+  - b3
+  python:
+    env:
+    - name: OTEL_EXPORTER_OTLP_ENDPOINT
+      value: http://vm-collector.observability.svc.cluster.local:4318
+  sampler:
+    argument: "1"
+    type: parentbased_traceidratio
+

@@ -1,0 +1,352 @@
+
+collector:
+  mode: deployment
+  podDisruptionBudget:
+    enabled: true
+  resources:
+    limits:
+      cpu: "0.4"
+      memory: 600Mi
+    requests:
+      cpu: "0.15"
+      memory: 500Mi
+  image:
+    repository: "otel/opentelemetry-collector-contrib"
+    pullPolicy: IfNotPresent
+    tag: "0.123.0"
+  tolerations:
+    - key: "kubernetes.io/hostname"
+      operator: "Equal"
+      value: "worker1"
+      effect: "NoSchedule"
+
+  livenessProbe:
+    httpGet:
+      path: /
+      port: 13133
+    initialDelaySeconds: 20
+    periodSeconds: 10
+    timeoutSeconds: 2
+    failureThreshold: 3
+
+  readinessProbe:
+    httpGet:
+      path: /
+      port: 13133
+    initialDelaySeconds: 20
+    periodSeconds: 10
+    timeoutSeconds: 2
+    failureThreshold: 3
+
+  extraEnvs:
+    - name: MYSQL_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: collector-db-creds
+          key: mysql-username
+    - name: MYSQL_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: collector-db-creds
+          key: mysql-password
+    - name: POSTGRES_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: collector-db-creds
+          key: postgres-username
+    - name: POSTGRES_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: collector-db-creds
+          key: postgres-password
+    - name: REDIS_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: collector-db-creds
+          key: redis-password
+    - name: MONGODB_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: collector-db-creds
+          key: mongodb-username
+    - name: MONGODB_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: collector-db-creds
+          key: mongodb-password
+
+  config:
+    extensions:
+      health_check:
+        endpoint: 0.0.0.0:13133
+    connectors:
+      servicegraph:
+        latency_histogram_buckets: [100ms, 250ms, 1s, 5s, 10s]
+        dimensions:
+          - http.method
+          - http.target
+        store:
+          max_items: 500
+          ttl: 5s
+        virtual_node_extra_label: true
+        virtual_node_peer_attributes:
+          - db.name
+          - db.system
+          - messaging.system
+          - peer.service
+
+      spanmetrics:
+        histogram:
+          explicit:
+            buckets: [100ms, 250ms, 500ms, 1s] 
+        dimensions:
+        - name: rpc.grpc.status_code
+        - name: rpc.service
+        - name: rpc.system
+        - name: rpc.method
+        - name: http.method
+        - name: http.status_code
+        - name: http.response.status_code
+        - default: /
+          name: http.route
+        - default: UNKNOWN
+          name: BU
+        dimensions_cache_size: 1000
+        events:
+          dimensions:
+          - name: exception.type
+          - name: exception.message
+          enabled: false
+        exemplars:
+          enabled: true
+        metrics_expiration: 5m
+        metrics_flush_interval: 15s
+    exporters:
+      debug:
+        verbosity: detailed
+      otlp:
+        endpoint: tempo-distributor:4317
+        tls:
+          insecure: true
+        sending_queue:
+          enabled: true
+          num_consumers: 10
+          queue_size: 5000
+        retry_on_failure:
+          enabled: true
+        compression: snappy
+        timeout: 30s
+      prometheusremotewrite:
+        endpoint: "http://vminsert-vm.monitoring.svc:8480/insert/0/prometheus/api/v1/write"
+        max_batch_size_bytes: 3000000
+        remote_write_queue:
+          enabled: true
+          queue_size: 100000
+        retry_on_failure:
+          enabled: true
+          initial_interval: 5s
+          max_elapsed_time: 300s
+          max_interval: 30s
+        timeout: 300s
+        tls:
+          insecure_skip_verify: true
+
+    processors:
+      memory_limiter:
+        check_interval: 1s
+        limit_percentage: 70
+        spike_limit_percentage: 10
+      tail_sampling:
+        decision_wait: 60s
+        policies:
+          - name: error-policy
+            status_code:
+              status_codes: [ERROR]
+            type: status_code
+          - name: latency-policy
+            latency:
+              threshold_ms: 500
+            type: latency
+          - name: probabilistic
+            probabilistic:
+              sampling_percentage: 10
+            type: probabilistic
+      batch:
+        send_batch_max_size: 0
+        send_batch_size: 3000000
+        timeout: 15s
+      batch/tempo:
+        send_batch_max_size: 128
+        send_batch_size: 64
+        timeout: 1s
+      transform/add_db_labels:
+        metric_statements:
+          - context: resource
+            statements:
+              - set(attributes["job"], "mysql_metrics") where attributes["mysql.instance.endpoint"] == "mysql.database.svc.cluster.local:3306"
+              - set(attributes["instance"], "mysql.database.svc.cluster.local:3306") where attributes["mysql.instance.endpoint"] == "mysql.database.svc.cluster.local:3306"
+              - set(attributes["receiver"], "mysql") where attributes["mysql.instance.endpoint"] == "mysql.database.svc.cluster.local:3306"
+              - set(attributes["job"], "postgresql_metrics") where attributes["receiver"] == "postgresql"
+              - set(attributes["instance"], "postgres.database.svc.cluster.local:5432") where attributes["receiver"] == "postgresql"
+              - set(attributes["receiver"], "postgresql") where attributes["receiver"] == "postgresql"
+              - set(attributes["job"], "redis_metrics") where attributes["receiver"] == "redis"
+              - set(attributes["instance"], "redis-master.middleware.svc.cluster.local:6379") where attributes["receiver"] == "redis"
+              - set(attributes["receiver"], "redis") where attributes["receiver"] == "redis"
+              - set(attributes["job"], "mongodb_metrics") where attributes["receiver"] == "mongodb"
+              - set(attributes["instance"], "mongodb.database.svc.cluster.local:27017") where attributes["receiver"] == "mongodb"
+              - set(attributes["receiver"], "mongodb") where attributes["receiver"] == "mongodb"
+              - set(attributes["job"], "apache_metrics") where attributes["receiver"] == "apache"
+              - set(attributes["instance"], "apache.webserver.svc.cluster.local:80") where attributes["receiver"] == "apache"
+              - set(attributes["receiver"], "apache") where attributes["receiver"] == "apache"
+      attributes:
+        actions:
+        - action: extract
+          key: http.url
+          pattern: ^(?P<domain>https?://[^/]+)(?P<base_path>(?:/[^/?\.]+)+)(?:/[^/?]+\.[a-zA-Z0-9]+)?(?:\?.*)?$
+      attributes/metrics:
+        actions:
+        - action: extract
+          key: span.name
+          pattern: ^(?P<temp_url>[A-Z]+\s+\/[^? ]*)
+      transform:
+        trace_statements:
+        - set(span.name, span.attributes["base_path"])
+        - replace_pattern(span.attributes["http.route"], "[a-zA-Z0-9\\-]{8,}(\\?\\=/|$)",
+          ":id")
+        - keep_keys(resource.attributes, ["service.name", "service.namespace", "process.command",
+          "k8s.namespace.name"])
+      transform/metrics:
+        metric_statements:
+        - context: datapoint
+          statements:
+          - set(attributes["http.status_code"], attributes["http.response.status_code"])
+          - set(attributes["http.method"], attributes["http.request.method"])
+          - set(attributes["span.name"], attributes["temp_url"])
+          - replace_pattern(attributes["span.name"], "[a-f0-9]{8}-[a-f0-9]{4}-[1-5][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}","{:UUID}")
+          - replace_pattern(attributes["span.name"], "[^/]+?\\.(gif|webp|js|css|png|jpg|jpeg|svg|ico|woff2?|ttf|map)$","")
+          - delete_key(attributes, "temp_url")
+          - delete_key(attributes, "instance")
+          - delete_key(attributes, "http.request.method")
+          - delete_key(attributes, "http.response.status_code")
+
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:4317
+          http:
+            endpoint: 0.0.0.0:4318
+
+      apache:
+        endpoint: "http://apache.webserver.svc.cluster.local:80/server-status?auto"
+
+      postgresql:
+        endpoint: postgres.database.svc.cluster.local:5432
+        transport: tcp
+        username: ${POSTGRES_USERNAME}
+        password: ${POSTGRES_PASSWORD}
+        databases: [postgres]
+        collection_interval: 10s
+        tls:
+          insecure: true
+
+      redis:
+        endpoint: redis-master.middleware.svc.cluster.local:6379
+        password: ${REDIS_PASSWORD}
+        collection_interval: 10s
+
+      mongodb:
+        hosts:
+          - endpoint: mongodb.database.svc.cluster.local:27017
+        username: ${MONGODB_USERNAME}
+        password: ${MONGODB_PASSWORD}
+        collection_interval: 60s
+        initial_delay: 1s
+        tls:
+          insecure: true
+          insecure_skip_verify: true
+
+      mysql:
+        endpoint: mysql.database.svc.cluster.local:3306
+        username: ${MYSQL_USERNAME}
+        password: ${MYSQL_PASSWORD}
+        database: my_database
+        collection_interval: 10s
+        initial_delay: 1s
+        statement_events:
+          digest_text_limit: 120
+          time_limit: 24h
+          limit: 250
+
+      prometheus:
+        config:
+          scrape_configs:
+            - job_name: app-otelcol-metrics
+              scrape_interval: 10s
+              static_configs:
+                - targets: [127.0.0.1:8889]
+
+    service:
+      extensions: [health_check]
+      pipelines:
+        metrics/o11ymetrics:
+          exporters: [prometheusremotewrite, debug]
+          processors: [memory_limiter, attributes/metrics, attributes/addcollectorid, transform/metrics, attributes/removelabel, attributes, transform/add_db_labels, batch]
+          receivers: [otlp, prometheus, apache, postgresql, redis, mongodb, mysql,spanmetrics,servicegraph]
+        traces/o11ymetrics:
+          exporters: [otlp]
+          processors: [memory_limiter, batch]
+          receivers: [otlp]
+        traces/o11ytraces:
+          exporters: [otlp,spanmetrics,servicegraph,debug]
+          processors: [memory_limiter, tail_sampling, batch/tempo]
+          receivers: [otlp]
+      telemetry:
+        metrics:
+          level: detailed
+          readers:
+            - pull:
+                exporter:
+                  prometheus:
+                    host: 127.0.0.1
+                    port: 8889
+
+  extraManifests:
+    - apiVersion: opentelemetry.io/v1alpha1
+      kind: Instrumentation
+      metadata:
+        name: otel-instrumentation
+        namespace: observability
+      spec:
+        exporter:
+          endpoint: http://collector.observability.svc.cluster.local:4317
+        propagators: [tracecontext, baggage, b3]
+        sampler:
+          type: parentbased_traceidratio
+          argument: "0.10"
+        python:
+          env:
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: http://collector.observability.svc.cluster.local:4318
+        dotnet:
+          env:
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: http://collector.observability.svc.cluster.local:4318
+        go:
+          env:
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: http://collector.observability.svc.cluster.local:4318
+
+secrets:
+  mysql:
+    username: root
+    password: QLeaUfExju
+  postgres:
+    username: postgres
+    password: s1YKAtfl48
+  redis:
+    password: LVjh5b8uX4
+  mongodb:
+    username: root
+    password: K12Dm7FsG7
+

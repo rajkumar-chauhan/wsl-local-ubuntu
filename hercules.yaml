@@ -1,0 +1,54 @@
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMStaticScrape
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"operator.victoriametrics.com/v1beta1","kind":"VMStaticScrape","metadata":{"annotations":{},"name":"hercules-exporters","namespace":"monitoring"},"spec":{"jobName":"Hercules","targetEndpoints":[{"labels":{"cluster":"external","component":"node-exporter"},"targets":["192.168.10.119:9100","192.168.10.151:9100","192.168.10.52:9100","192.168.10.22:9100"]}]}}
+  creationTimestamp: "2025-08-06T13:39:00Z"
+  generation: 8
+  name: hercules-exporters
+  namespace: monitoring
+  resourceVersion: "70010729"
+  uid: 9ea5cfc6-41cc-4808-8583-1c3186b5fdb4
+spec:
+  jobName: hercules
+  targetEndpoints:
+  - labels:
+      cluster: external
+      component: node-exporter
+    targets:
+    - 192.168.10.119:9100
+    - 192.168.10.151:9100
+    - 192.168.10.52:9100
+    - 192.168.10.22:9100
+    - 192.168.10.105:9100
+    - 192.168.10.106:9100
+    - 192.168.10.123:9100
+    - 192.168.10.141:9100
+    - 192.168.10.160:9100
+    - 192.168.10.192:9100
+    - 192.168.10.217:9100
+    - 192.168.10.233:9100
+    - 192.168.10.253:9100
+    - 192.168.10.27:9100
+    - 192.168.10.36:9100
+    - 192.168.10.40:9100
+    - 192.168.10.70:9100
+    - 192.168.10.96:9100
+    - 192.168.8.142:9100
+    - 192.168.10.150:9100
+    - 192.168.8.152:9100
+    - 192.168.8.176:9100
+    - 192.168.8.116:9100
+    - 192.168.8.82:9100
+    - 192.168.8.39:9100
+status:
+  conditions:
+  - lastTransitionTime: "2025-08-06T13:39:01Z"
+    lastUpdateTime: "2025-09-15T15:47:56Z"
+    observedGeneration: 8
+    reason: ConfigParsedAndApplied
+    status: "True"
+    type: vm.monitoring.vmagent.victoriametrics.com/Applied
+  observedGeneration: 8
+  updateStatus: operational

@@ -1,0 +1,79 @@
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMStaticScrape
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"operator.victoriametrics.com/v1beta1","kind":"VMStaticScrape","metadata":{"annotations":{},"name":"ashwathama-exporters","namespace":"monitoring"},"spec":{"jobName":"Ashwathama","targetEndpoints":[{"labels":{"cluster":"external","component":"node-exporter"},"targets":["192.168.8.125:9100","192.168.8.160:9100","192.168.8.68:9100","192.168.8.122:9100","192.168.8.29:9100","192.168.8.134:9100","192.168.8.125:9100","192.168.8.149:9100","192.168.8.136:9100","192.168.8.154:9100"]}]}}
+  creationTimestamp: "2025-08-06T13:01:36Z"
+  generation: 10
+  name: ashwathama-exporters
+  namespace: monitoring
+  resourceVersion: "70009744"
+  uid: 204cb2ee-8b4b-4d96-b0c6-59a036580e04
+spec:
+  jobName: op-srv-01
+  targetEndpoints:
+  - labels:
+      cluster: external
+      component: node-exporter
+    targets:
+    - 192.168.8.125:9100
+    - 192.168.8.160:9100
+    - 192.168.8.68:9100
+    - 192.168.8.122:9100
+    - 192.168.8.29:9100
+    - 192.168.8.134:9100
+    - 192.168.8.149:9100
+    - 192.168.8.136:9100
+    - 192.168.8.154:9100
+    - 192.168.10.114:9100
+    - 192.168.10.116:9100
+    - 192.168.10.120:9100
+    - 192.168.10.128:9100
+    - 192.168.10.178:9100
+    - 192.168.10.190:9100
+    - 192.168.10.202:9100
+    - 192.168.10.205:9100
+    - 192.168.10.21:9100
+    - 192.168.10.214:9100
+    - 192.168.10.221:9100
+    - 192.168.10.230:9100
+    - 192.168.10.240:9100
+    - 192.168.10.28:9100
+    - 192.168.10.32:9100
+    - 192.168.10.84:9100
+    - 192.168.10.93:9100
+    - 192.168.8.116:9100
+    - 192.168.8.121:9100
+    - 192.168.8.126:9100
+    - 192.168.8.167:9100
+    - 192.168.8.2:9100
+    - 192.168.8.28:9100
+    - 192.168.8.33:9100
+    - 192.168.8.51:9100
+    - 192.168.8.56:9100
+    - 192.168.8.69:9100
+    - 192.168.8.83:9100
+    - 192.168.8.88:9100
+    - 192.168.8.93:9100
+    - 192.168.8.6:9100
+    - 192.168.8.42:9100
+    - 192.168.8.92:9100
+    - 192.168.8.3:9100
+    - 192.168.8.98:9100
+    - 192.168.8.127:9100
+    - 192.168.8.111:9100
+    - 192.168.8.77:9100
+    - 192.168.8.102:9100
+    - 192.168.8.32:9100
+    - 192.168.8.205:9100
+status:
+  conditions:
+  - lastTransitionTime: "2025-08-06T13:01:39Z"
+    lastUpdateTime: "2025-09-15T15:46:43Z"
+    observedGeneration: 10
+    reason: ConfigParsedAndApplied
+    status: "True"
+    type: vm.monitoring.vmagent.victoriametrics.com/Applied
+  observedGeneration: 10
+  updateStatus: operational

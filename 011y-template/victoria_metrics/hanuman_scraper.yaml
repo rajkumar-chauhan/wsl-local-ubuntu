@@ -1,0 +1,14 @@
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMStaticScrape
+metadata:
+  name: hanuman-exporters
+  namespace: monitoring
+spec:
+  jobName: "Hanuman"
+  targetEndpoints:
+  - targets:
+    - 192.168.10.17:9200
+    
+    labels:
+      cluster: external
+      component: node-exporter

@@ -1,0 +1,184 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 252,
+  "links": [],
+  "panels": [
+    {
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 502,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "If you select a large time range (like 3 hours) but only see a few minutes of logs, it's because the log volume is high and you've hit the **3000-line display limit**. To see older logs from a specific time, you must narrow your time range:\n\n1.  **Click the Time Picker** in the top-right corner of the dashboard.\n2.  **Select a smaller, absolute time range.** You can either type the 'From' and 'To' times manually or click-and-drag over the graph to select a specific window (e.g., a 5-minute slice from 2 hours ago).\n3.  Click the **'Apply time range'** button.\n\nThis will focus the 3000-line limit on that specific, smaller window, allowing you to see the exact logs you need without missing older data.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "12.0.2",
+      "title": "Dashboard Usage and Log Limits",
+      "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 20,
+        "w": 24,
+        "x": 0,
+        "y": 6
+      },
+      "id": 1,
+      "options": {
+        "dedupStrategy": "none",
+        "enableInfiniteScrolling": false,
+        "enableLogDetails": true,
+        "prettifyLogMessage": false,
+        "showCommonLabels": false,
+        "showLabels": true,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": false
+      },
+      "pluginVersion": "12.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "${datasource}"
+          },
+          "direction": "backward",
+          "editorMode": "code",
+          "expr": "{cluster=\"$cluster\", namespace=\"$namespace\", service_name=\"postgresql\"} |= \"$search\"",
+          "limit": 3000,
+          "maxLines": 3000,
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "PostgreSQL Pod Logs",
+      "type": "logs"
+    }
+  ],
+  "preload": false,
+  "refresh": "30s",
+  "schemaVersion": 41,
+  "tags": [
+    "ot-postgresql",
+    "ot-kit"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "text": "loki",
+          "value": "ceq0n98rrsem8b"
+        },
+        "includeAll": false,
+        "label": "Datasource",
+        "name": "datasource",
+        "options": [],
+        "query": "loki",
+        "refresh": 1,
+        "type": "datasource"
+      },
+      {
+        "current": {
+          "text": "varta-dev-eks",
+          "value": "varta-dev-eks"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "victoriametrics"
+        },
+        "definition": "label_values(kube_pod_info, cluster)",
+        "label": "Cluster",
+        "name": "cluster",
+        "options": [],
+        "query": "label_values(kube_pod_info, cluster)",
+        "refresh": 1,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {
+          "text": "varta-dev",
+          "value": "varta-dev"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "victoriametrics"
+        },
+        "definition": "label_values(kube_pod_info{cluster=\"$cluster\"}, namespace)",
+        "includeAll": false,
+        "label": "Namespace",
+        "name": "namespace",
+        "options": [],
+        "query": "label_values(kube_pod_info{cluster=\"$cluster\"}, namespace)",
+        "refresh": 1,
+        "regex": "",
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {
+          "text": "",
+          "value": ""
+        },
+        "label": "Search",
+        "name": "search",
+        "options": [
+          {
+            "selected": true,
+            "text": "",
+            "value": ""
+          }
+        ],
+        "query": "",
+        "type": "textbox"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-5m",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Opstree/PostgreSQL-Log-Dashboard",
+  "uid": "xbhbsuhxush",
+  "version": 11
+}

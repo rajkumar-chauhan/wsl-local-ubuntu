@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    konghq.com/strip-path: "true"
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"networking.k8s.io/v1","kind":"Ingress","metadata":{"annotations":{"konghq.com/strip-path":"true"},"name":"grafana","namespace":"monitoring"},"spec":{"ingressClassName":"kong","rules":[{"host":"grafana.k8s.opstree.dev","http":{"paths":[{"backend":{"service":{"name":"grafana","port":{"number":80}}},"path":"/","pathType":"Prefix"}]}}]}}
+  creationTimestamp: "2025-07-10T08:35:07Z"
+  generation: 2
+  name: grafana
+  namespace: monitoring
+  resourceVersion: "25646892"
+  uid: 46669de5-383a-460a-8e15-475557e6058f
+spec:
+  ingressClassName: kong
+  rules:
+  - host: grafana.k8s.opstree.dev
+    http:
+      paths:
+      - backend:
+          service:
+            name: grafana
+            port:
+              number: 80
+        path: /
+        pathType: Prefix
+status:
+  loadBalancer:
+    ingress:
+    - ip: 192.168.10.34

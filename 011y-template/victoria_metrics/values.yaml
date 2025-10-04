@@ -1,0 +1,400 @@
+vm:
+  victoria-metrics-operator:
+    enabled: true
+    fullnameOverride: vm-operator-victoria-metrics-operator
+    operator:
+      disable_prometheus_converter: false
+    resources:
+      limits:
+        cpu: "0.5"
+        memory: 500Mi
+      requests:
+        cpu: "0.3"
+        memory: 300Mi
+  vmsingle:
+    enabled: false
+  vmcluster:
+    enabled: true
+    spec:
+      replicationFactor: 1
+      vmstorage:
+        replicaCount: 1
+        extraArgs:
+            search.maxUniqueTimeseries: "10000000000000"
+        resources:
+          limits:
+            cpu: "1"
+            memory: 2Gi
+          requests:
+            cpu: "0.5"
+            memory: 1Gi
+        storage:
+          volumeClaimTemplate:
+            spec:
+              resources:
+                requests:
+                  storage: 5Gi
+        # tolerations:
+        #   - key: "kubernetes.io/hostname"
+        #     operator: "Equal"
+        #     value: "worker1"
+        #     effect: "NoSchedule"
+      vmselect:
+        enabled: true
+        replicaCount: 1
+        extraArgs:
+          memory.allowedPercent: "75"
+          search.cacheTimestampOffset: 60m
+          search.maxLabelsAPISeries: "10000000000000"
+          search.maxMemoryPerQuery: 2GB
+          search.maxPointsPerTimeseries: "10000000000000"
+          search.maxQueryDuration: 10m
+          search.maxQueryLen: "10000000000000"
+          search.maxSeries: "10000000000000"
+          search.maxUniqueTimeseries: "10000000000000"
+        cacheMountPath: "/select-cache"
+        storage:
+          volumeClaimTemplate:
+            spec:
+              resources:
+                requests:
+                  storage: 1Gi
+        resources:
+          limits:
+            cpu: "0.3"
+            memory: 500Mi
+          requests:
+            cpu: "0.2"
+            memory: 250Mi
+        # nodeSelector:
+        #   kubernetes.io/hostname: worker1  
+        # tolerations:
+        #   - key: "kubernetes.io/hostname"
+        #     operator: "Equal"
+        #     value: "worker1"
+        #     effect: "NoSchedule"
+      vminsert:
+        enabled: true
+        replicaCount: 1
+        extraArgs:
+          maxLabelsPerTimeseries: "100"
+        resources:
+          limits:
+            cpu: "0.3"
+            memory: 500Mi
+          requests:
+            cpu: "0.2"
+            memory: 250Mi
+        # nodeSelector:
+        #   kubernetes.io/hostname: worker1
+  alertmanager:
+    enabled: false
+   
+  vmalert:
+    enabled: true
+    spec:
+      selectAllByDefault: true
+      image:
+        tag: v1.102.1
+      evaluationInterval: 15s
+      resources:
+        limits:
+          cpu: "0.5"
+          memory: 500Mi
+        requests:
+          cpu: "0.5"
+          memory: 250Mi
+      notifiers: 
+        - url: "http://alertmanager:9093"
+  vmagent:
+    enabled: true
+    spec:
+      selectAllByDefault: true
+      image:
+        tag: v1.102.1
+      serviceScrapeNamespaceSelector: {}
+        # matchLabels:
+        #   kubernetes.io/metadata.name: vm
+      scrapeInterval: 30s
+      extraArgs:
+        promscrape.maxScrapeSize: 200MB
+        promscrape.dropOriginalLabels: "true"
+        remoteWrite.label: k8s_cluster=LDC,env=LDC
+      useVMConfigReloader: false
+      resources:
+        limits:
+          cpu: "0.3"
+          memory: 500Mi
+        requests:
+          cpu: "0.2"
+          memory: 250Mi
+      # scrape_configs:
+  # job_name must contain value for `job` label, which is added
+  # to all the metrics collected from the configured and discovered scrape targets.
+  # See https://prometheus.io/docs/concepts/jobs_instances/ .
+  #
+      # - job_name: "static"
+
+  # scrape_interval is an optional interval to scrape targets.
+  # By default, the scrape_interval specified in `global` section is used.
+  # See https://prometheus.io/docs/prometheus/latest/configuration/configuration/#configuration-file
+  # If `global` section doesn't contain the `scrape_interval` option,
+  # then one minute interval is used.
+  # Example values:
+  # - "30s" - 30 seconds
+  # - "2m" - 2 minutes
+  # The scrape_interval can be set on a per-target basis by specifying `__scrape_interval__`
+  # label during target relabeling phase.
+  # See https://docs.victoriametrics.com/victoriametrics/relabeling/
+  #
+        # scrape_interval: 30s
+
+  # scrape_timeout is an optional timeout when scraping the targets.
+  # By default, the scrape_timeout specified in `global` section is used.
+  # See https://prometheus.io/docs/prometheus/latest/configuration/configuration/#configuration-file
+  # If `global` section doesn't contain the `scrape_timeout` option,
+  # then 10 seconds interval is used.
+  # Example values:
+  # - "30s" - 30 seconds
+  # - "2m" - 2 minutes
+  # The `scrape_timeout` cannot exceed the `scrape_interval`.
+  # The scrape_timeout can be set on a per-target basis by specifying `__scrape_timeout__`
+  # label during target relabeling phase.
+  # See https://docs.victoriametrics.com/victoriametrics/relabeling/
+  #
+  # scrape_timeout: <duration>
+
+  # max_scrape_size is an optional parameter for limiting the response size in bytes from scraped targets.
+  # If max_scrape_size isn't set, then the limit from -promscrape.maxScrapeSize command-line flag is used instead.
+  # Example values:
+  # - "10MiB" - 10 * 1024 * 1024 bytes
+  # - "100MB" - 100 * 1000 * 1000 bytes
+  #
+  # max_scrape_size: <size>
+
+  # metrics_path is the path to fetch metrics from targets.
+  # By default, metrics are fetched from "/metrics" path.
+  #
+  # metrics_path: "..."
+
+  # honor_labels controls how to handle conflicts between labels that are
+  # already present in scraped data and labels that would be attached
+  # server-side "job" and "instance" labels, manually configured target
+  # labels, labels generated by service discovery, etc.
+  #
+  # If honor_labels is set to "true", label conflicts are resolved by keeping label
+  # values from the scraped data and ignoring the conflicting server-side labels.
+  #
+  # If honor_labels is set to "false", label conflicts are resolved by renaming
+  # conflicting labels in the scraped data to "exported_<original-label>" (for
+  # example "exported_instance", "exported_job") and then attaching server-side
+  # labels.
+  #
+  # Setting honor_labels to "true" is useful for use cases such as federation and
+  # scraping the Pushgateway, where all labels specified in the target should be
+  # preserved.
+  #
+  # By default, honor_labels is set to false for security and consistency reasons.
+  #
+  # honor_labels: <boolean>
+
+  # honor_timestamps controls whether to respect the timestamps present in scraped data.
+  #
+  # If honor_timestamps is set to "true", the timestamps of the metrics exposed
+  # by the target will be used.
+  #
+  # If honor_timestamps is set to "false", the timestamps of the metrics exposed
+  # by the target will be ignored.
+  #
+  # By default, honor_timestamps is set to false.
+  # See https://github.com/VictoriaMetrics/VictoriaMetrics/issues/4697#issuecomment-1656540535 for details.
+  #
+  # honor_timestamps: <boolean>
+
+  # scheme configures the protocol scheme used for requests.
+  # Supported values: http and https.
+  # By default, http is used.
+  #
+  # scheme: "..."
+
+  # Optional query arg parameters to add to scrape url.
+  #
+  # params:
+  #   "param_name1": ["value1", ..., "valueN"]
+  #   ...
+  #   "param_nameM": ["valueM1", ..., "valueMN"]
+
+  # relabel_configs is an optional relabeling configurations
+  # for the specified and discovered scrape targets.
+  # See https://docs.victoriametrics.com/victoriametrics/relabeling/
+  #
+  # relabel_configs:
+  # - <relabel_config> ...
+
+  # metric_relabel_configs is an optional relabeling configs
+  # for the collected metrics from active scrape targets.
+  # See https://docs.victoriametrics.com/victoriametrics/relabeling/
+  #
+  # metric_relabel_configs:
+  # - <relabel_config> ...
+
+  # sample_limit is an optional per-scrape limit on number
+  # of scraped samples that will be accepted.
+  # If more than this number of samples are present after metric relabeling
+  # the entire scrape will be treated as failed.
+  # By default, the limit is disabled.
+  # The sample_limit can be set on a per-target basis by specifying `__sample_limit__`
+  # label during target relabeling phase. Available starting from v1.103.0.
+  # See https://docs.victoriametrics.com/victoriametrics/relabeling/
+  #
+  # sample_limit: <int>
+
+  # disable_compression allows disabling HTTP compression for responses received from scrape targets.
+  # By default, scrape targets are queried with `Accept-Encoding: gzip` http request header,
+  # so targets could send compressed responses in order to save network bandwidth.
+  # See https://docs.victoriametrics.com/victoriametrics/vmagent/#scrape_config-enhancements
+  #
+  # disable_compression: <boolean>
+
+  # disable_keepalive allows disabling HTTP keep-alive when scraping targets.
+  # By default, HTTP keep-alive is enabled, so TCP connections to scrape targets
+  # could be reused.
+  # See https://docs.victoriametrics.com/victoriametrics/vmagent/#scrape_config-enhancements
+  #
+  # disable_keepalive: <boolean>
+
+  # stream_parse allows enabling stream parsing mode when scraping targets.
+  # By default, stream parsing mode is disabled for targets which return up to a few thousands samples.
+  # See https://docs.victoriametrics.com/victoriametrics/vmagent/#stream-parsing-mode .
+  # The stream_parse can be set on a per-target basis by specifying `__stream_parse__`
+  # label during target relabeling phase.
+  # See https://docs.victoriametrics.com/victoriametrics/relabeling/
+  #
+  # stream_parse: <boolean>
+
+  # scrape_align_interval allows aligning scrapes to the given interval.
+  # Example values:
+  # - "5m" - align scrapes to every 5 minutes.
+  # - "1h" - align scrapes to every hour.
+  # See https://docs.victoriametrics.com/victoriametrics/vmagent/#scrape_config-enhancements
+  #
+  # scrape_align_interval: <duration>
+
+  # scrape_offset allows specifying the exact offset for scrapes.
+  # Example values:
+  # - "5m" - align scrapes to every 5 minutes.
+  # - "1h" - align scrapes to every hour.
+  # See https://docs.victoriametrics.com/victoriametrics/vmagent/#scrape_config-enhancements
+  #
+  # scrape_offset: <duration>
+
+  # series_limit is an optional limit on the number of unique time series
+  # a single target can expose during all the scrapes on the time window of 24h.
+  # By default, there is no limit on the number of exposed series.
+  # See https://docs.victoriametrics.com/victoriametrics/vmagent/#cardinality-limiter .
+  # The series_limit can be set on a per-target basis by specifying `__series_limit__`
+  # label during target relabeling phase.
+  # See https://docs.victoriametrics.com/victoriametrics/relabeling/
+  #
+  # series_limit: <int>
+
+  # label_limit is an optional limit on the number of labels per each sample
+  # exposed by a target. It can be set globally for a whole scrape configuration and for each scrape job
+  #
+  # By default, the limit is disabled.
+  # The label_limit can be set on a per-target basis by specifying `__label_limit__`
+  # label during target relabeling phase. Available starting from v1.121.0.
+  # See https://docs.victoriametrics.com/victoriametrics/relabeling/
+  #
+  # label_limit: <int>
+
+  # no_stale_markers allows disabling staleness tracking.
+  # By default, staleness tracking is enabled for all the discovered scrape targets.
+  # See https://docs.victoriametrics.com/victoriametrics/vmagent/#prometheus-staleness-markers
+  #
+  # no_stale_markers: <boolean>
+
+  # Additional HTTP client options for target scraping can be specified here.
+  # See https://docs.victoriametrics.com/victoriametrics/sd_configs/#http-api-client-options
+      
+      # - job_name: static
+        # targets must contain a list of `host:port` targets to scrape.
+        # The `http://host:port/metrics` endpoint is scraped per each configured target then.
+        # The `http` scheme can be changed to `https` by setting it via `scheme` field at `scrape_config` level.
+        # The `/metrics` path can be changed to arbitrary path via `metrics_path` field at `scrape_config` level.
+        # See https://docs.victoriametrics.com/victoriametrics/sd_configs/#scrape_configs .
+        #
+        # Alternatively the scheme and path can be changed via `relabel_configs` section at `scrape_config` level.
+        # See https://docs.victoriametrics.com/victoriametrics/relabeling/ .
+        #
+        # It is also possible specifying full target urls here, e.g. "http://host:port/metrics/path?query_args"
+        #
+      # - targets:
+      #   - "http://192.168.10.212:9100/metrics"
+      #   - "http://192.168.10.213:9100/metrics"
+      #   - "http://192.168.10.211:9100/metrics"
+    # extraScrapeConfigs:
+    #   name: custom-scrape-config
+    #   key: additional-scrape-configs.yaml
+    # ingress:
+    #   enabled: true
+    #   ingressClassName: kong
+    #   annotations:
+    #     konghq.com/strip-path: "true"
+    #     konghq.com/protocols: "http"
+    #   path: /
+    #   pathType: Prefix
+    #   hosts:
+    #     - vmagent.k8s.opstree.dev
+ 
+  kube-state-metrics:
+    enabled: true
+    resources:
+      requests:
+        memory: "300Mi"
+        cpu: "250m"
+      limits:
+        memory: "500Mi"
+        cpu: "500m"
+    service:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+      port: 8080
+      targetPort: http-metrics
+    rbac:
+      create: true  
+    serviceAccount:
+      create: true
+      name: "kube-sa"
+    livenessProbe:
+      httpGet:
+        path: /
+        port: 8080
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 3
+    readinessProbe:
+      httpGet:
+        path: /
+        port: 8080
+      initialDelaySeconds: 20
+      periodSeconds: 5
+      timeoutSeconds: 3
+      failureThreshold: 3
+  defaultRules:
+    create: false
+
+  grafana:
+    enabled: false
+  prometheus-node-exporter:
+    enabled: true
+  kube-state-metrics:
+    enabled: true
+  kubeApiServer:
+    enabled: false
+  kubeControllerManager:
+    enabled: false
+  crds:
+    enabled: true

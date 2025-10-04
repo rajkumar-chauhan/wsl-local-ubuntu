@@ -1,0 +1,4 @@
+apiVersion: v2
+name: grafana-dashboard-uploader
+description: Upload dashboards to Grafana with folder/subfolder structure
+version: 0.1.0

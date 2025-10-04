@@ -1,0 +1,1389 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "Global Dashboard with Services, Endpoints, Node Count and Consumption widgets.",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": 211,
+  "links": [],
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 34,
+      "panels": [],
+      "title": " Services Success Rate",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "description": "It shows the percentage of successful HTTP requests for a specific route within an application\n",
+      "fieldConfig": {
+        "defaults": {
+          "fieldMinMax": false,
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 8,
+        "x": 0,
+        "y": 1
+      },
+      "id": 44,
+      "options": {
+        "autoSizeColumns": true,
+        "autoSizePolygons": true,
+        "autoSizeRows": true,
+        "compositeConfig": {
+          "animationSpeed": "1500",
+          "composites": [
+            {
+              "clickThrough": "",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": true,
+              "clickThroughSanitize": true,
+              "displayMode": "all",
+              "enabled": true,
+              "isTemplated": false,
+              "label": "Composite-0",
+              "metrics": [
+                {
+                  "ID": "737389c0-9ccb-4a37-a105-f20e67141892",
+                  "alias": "",
+                  "order": 0,
+                  "seriesMatch": "consumer|varta-dev-eks|varta-dev"
+                }
+              ],
+              "name": "Composite-0",
+              "order": 0,
+              "showComposite": true,
+              "showMembers": true,
+              "showName": true,
+              "showTimestampEnabled": false,
+              "showTimestampFormat": "HH:mm:ss",
+              "showTimestampYOffset": 0,
+              "showValue": true
+            }
+          ],
+          "enabled": false
+        },
+        "compositeGlobalAliasingEnabled": false,
+        "ellipseCharacters": 18,
+        "ellipseEnabled": false,
+        "globalAutoScaleFonts": true,
+        "globalClickthrough": "",
+        "globalClickthroughCustomTarget": "",
+        "globalClickthroughCustomTargetEnabled": true,
+        "globalClickthroughNewTabEnabled": true,
+        "globalClickthroughSanitizedEnabled": true,
+        "globalDecimals": 2,
+        "globalDisplayMode": "all",
+        "globalDisplayTextTriggeredEmpty": "OK",
+        "globalFillColor": "red",
+        "globalFontSize": 12,
+        "globalGradientsEnabled": true,
+        "globalOperator": "mean",
+        "globalPolygonBorderColor": "rgba(0, 0, 0, 0)",
+        "globalPolygonBorderSize": 2,
+        "globalPolygonSize": 25,
+        "globalRegexPattern": "",
+        "globalShape": "hexagon_pointed_top",
+        "globalShowTimestampEnabled": false,
+        "globalShowTimestampFontSize": 12,
+        "globalShowTimestampFormat": "YYYY-MM-DD HH:mm:ss",
+        "globalShowTimestampPosition": "below_value",
+        "globalShowTimestampYOffset": 0,
+        "globalShowTooltipColumnHeadersEnabled": true,
+        "globalShowValueEnabled": true,
+        "globalTextFontAutoColorEnabled": false,
+        "globalTextFontColor": "#000000",
+        "globalTextFontFamily": "Roboto",
+        "globalThresholdsConfig": [],
+        "globalTooltipsEnabled": true,
+        "globalTooltipsFontFamily": "Roboto",
+        "globalTooltipsShowTimestampEnabled": true,
+        "globalTooltipsShowValueEnabled": true,
+        "globalUnitFormat": "percent",
+        "layoutDisplayLimit": 100,
+        "layoutNumColumns": 8,
+        "layoutNumRows": 8,
+        "overrideConfig": {
+          "overrides": [
+            {
+              "alias": "",
+              "clickThrough": "https://observability.fci-ccm.com/grafana/d/service-hive-opstree/services-hive-dashboard-final?orgId=1&from=now-1h&to=now&timezone=browser&var-datasource=victoriametrics&var-cluster=varta-dev-eks&var-namespace=varta-dev&var-application=$1",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": true,
+              "clickThroughSanitize": true,
+              "colors": [
+                "#299c46",
+                "#ed8128",
+                "#f53636",
+                "#0a55a1"
+              ],
+              "decimals": "1",
+              "enabled": true,
+              "label": "service_panel",
+              "metricName": "([^\"]+)",
+              "operatorName": "mean",
+              "order": 0,
+              "prefix": "",
+              "showTimestampEnabled": false,
+              "showTimestampFormat": "HH:mm:ss",
+              "showTimestampYOffset": 0,
+              "suffix": "",
+              "thresholds": [],
+              "unitFormat": "percent"
+            }
+          ]
+        },
+        "sortByDirection": 1,
+        "sortByField": "value",
+        "tooltipDisplayMode": "all",
+        "tooltipDisplayTextTriggeredEmpty": "OK",
+        "tooltipPrimarySortByField": "thresholdLevel",
+        "tooltipPrimarySortDirection": 1,
+        "tooltipSecondarySortByField": "value",
+        "tooltipSecondarySortDirection": 1
+      },
+      "pluginVersion": "2.1.14",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriametrics"
+          },
+          "editorMode": "code",
+          "exemplar": true,
+          "expr": "(\n  sum by (service_name, cluster, namespace) (\n    traces_span_metrics_duration_milliseconds_count{\n      cluster=\"$cluster\",\n      namespace=\"$namespace\",\n      span_kind=\"SPAN_KIND_SERVER\",\n      http_response_status_code=~\"^2.*|^3.*\"\n    }[1m]\n  )\n  /\n  sum by (service_name, cluster, namespace) (\n    traces_span_metrics_duration_milliseconds_count{\n      cluster=\"$cluster\",\n      namespace=\"$namespace\",\n      span_kind=\"SPAN_KIND_SERVER\"\n    }[1m]\n  )\n) * 100 < 90\n",
+          "format": "time_series",
+          "instant": false,
+          "interval": "",
+          "legendFormat": "{{service_name}}",
+          "range": true,
+          "refId": "success"
+        }
+      ],
+      "title": "< 90 Success Rate",
+      "type": "grafana-polystat-panel"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "description": "It shows the percentage of successful HTTP requests for a specific route within an application\n",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": []
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Error Rate"
+            },
+            "properties": []
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Success Rate"
+            },
+            "properties": []
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 8,
+        "x": 8,
+        "y": 1
+      },
+      "id": 43,
+      "options": {
+        "autoSizeColumns": true,
+        "autoSizePolygons": true,
+        "autoSizeRows": true,
+        "compositeConfig": {
+          "animationSpeed": "1500",
+          "composites": [],
+          "enabled": true
+        },
+        "compositeGlobalAliasingEnabled": false,
+        "ellipseCharacters": 18,
+        "ellipseEnabled": false,
+        "globalAutoScaleFonts": true,
+        "globalClickthrough": "",
+        "globalClickthroughCustomTarget": "",
+        "globalClickthroughCustomTargetEnabled": false,
+        "globalClickthroughNewTabEnabled": true,
+        "globalClickthroughSanitizedEnabled": true,
+        "globalDecimals": 2,
+        "globalDisplayMode": "all",
+        "globalDisplayTextTriggeredEmpty": "OK",
+        "globalFillColor": "super-light-orange",
+        "globalFontSize": 12,
+        "globalGradientsEnabled": true,
+        "globalOperator": "mean",
+        "globalPolygonBorderColor": "rgba(0, 0, 0, 0)",
+        "globalPolygonBorderSize": 2,
+        "globalPolygonSize": 25,
+        "globalRegexPattern": "",
+        "globalShape": "hexagon_pointed_top",
+        "globalShowTimestampEnabled": false,
+        "globalShowTimestampFontSize": 12,
+        "globalShowTimestampFormat": "YYYY-MM-DD HH:mm:ss",
+        "globalShowTimestampPosition": "below_value",
+        "globalShowTimestampYOffset": 0,
+        "globalShowTooltipColumnHeadersEnabled": true,
+        "globalShowValueEnabled": true,
+        "globalTextFontAutoColorEnabled": false,
+        "globalTextFontColor": "#000000",
+        "globalTextFontFamily": "Roboto",
+        "globalThresholdsConfig": [],
+        "globalTooltipsEnabled": true,
+        "globalTooltipsFontFamily": "Roboto",
+        "globalTooltipsShowTimestampEnabled": true,
+        "globalTooltipsShowValueEnabled": true,
+        "globalUnitFormat": "percent",
+        "layoutDisplayLimit": 100,
+        "layoutNumColumns": 8,
+        "layoutNumRows": 8,
+        "overrideConfig": {
+          "overrides": [
+            {
+              "alias": "",
+              "clickThrough": "https://observability.fci-ccm.com/grafana/d/service-hive-opstree/services-hive-dashboard-final?orgId=1&from=now-1h&to=now&timezone=browser&var-datasource=victoriametrics&var-cluster=varta-dev-eks&var-namespace=varta-dev&var-application=$1",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": true,
+              "clickThroughSanitize": true,
+              "colors": [
+                "#299c46",
+                "#ed8128",
+                "#f53636",
+                "#0a55a1"
+              ],
+              "decimals": "1",
+              "enabled": true,
+              "label": "service_panel",
+              "metricName": "([^\"]+)",
+              "operatorName": "mean",
+              "order": 0,
+              "prefix": "",
+              "showTimestampEnabled": false,
+              "showTimestampFormat": "HH:mm:ss",
+              "showTimestampYOffset": 0,
+              "suffix": "",
+              "thresholds": [],
+              "unitFormat": "percent"
+            }
+          ]
+        },
+        "sortByDirection": 1,
+        "sortByField": "value",
+        "tooltipDisplayMode": "all",
+        "tooltipDisplayTextTriggeredEmpty": "OK",
+        "tooltipPrimarySortByField": "thresholdLevel",
+        "tooltipPrimarySortDirection": 1,
+        "tooltipSecondarySortByField": "value",
+        "tooltipSecondarySortDirection": 1
+      },
+      "pluginVersion": "2.1.14",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriametrics"
+          },
+          "editorMode": "code",
+          "expr": "\n  ( sum by (service_name) (\n    traces_span_metrics_duration_milliseconds_count{cluster=\"$cluster\",namespace=\"$namespace\",span_kind=\"SPAN_KIND_SERVER\", http_response_status_code=~\"^2.*|^3.*\"}[1m]\n  )\n    /\n  sum by (service_name) (\n    traces_span_metrics_duration_milliseconds_count{cluster=\"$cluster\",namespace=\"$namespace\",span_kind=\"SPAN_KIND_SERVER\"}[1m]\n  )\n   ) * 100 > 90\nand \n  ( sum by (service_name) (\n    traces_span_metrics_duration_milliseconds_count{cluster=\"$cluster\",namespace=\"$namespace\",span_kind=\"SPAN_KIND_SERVER\", http_response_status_code=~\"^2.*|^3.*\"}[1m]\n  )\n    /\n  sum by (service_name) (\n    traces_span_metrics_duration_milliseconds_count{cluster=\"$cluster\",namespace=\"$namespace\",span_kind=\"SPAN_KIND_SERVER\"}[1m]\n  )\n   ) * 100 <= 99.9",
+          "instant": false,
+          "legendFormat": "{{service_name}}",
+          "range": true,
+          "refId": "success"
+        }
+      ],
+      "title": "> 90 and < 99.99 Success Rate",
+      "type": "grafana-polystat-panel"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "description": "It shows the percentage of successful HTTP requests for a specific route within an application\n",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": []
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Error Rate"
+            },
+            "properties": []
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Success Rate"
+            },
+            "properties": []
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 8,
+        "x": 16,
+        "y": 1
+      },
+      "id": 36,
+      "options": {
+        "autoSizeColumns": true,
+        "autoSizePolygons": true,
+        "autoSizeRows": true,
+        "compositeConfig": {
+          "animationSpeed": "1500",
+          "composites": [],
+          "enabled": true
+        },
+        "compositeGlobalAliasingEnabled": false,
+        "ellipseCharacters": 18,
+        "ellipseEnabled": false,
+        "globalAutoScaleFonts": true,
+        "globalClickthrough": "",
+        "globalClickthroughCustomTarget": "",
+        "globalClickthroughCustomTargetEnabled": false,
+        "globalClickthroughNewTabEnabled": true,
+        "globalClickthroughSanitizedEnabled": true,
+        "globalDecimals": 2,
+        "globalDisplayMode": "all",
+        "globalDisplayTextTriggeredEmpty": "OK",
+        "globalFillColor": "light-green",
+        "globalFontSize": 12,
+        "globalGradientsEnabled": true,
+        "globalOperator": "mean",
+        "globalPolygonBorderColor": "rgba(0, 0, 0, 0)",
+        "globalPolygonBorderSize": 2,
+        "globalPolygonSize": 25,
+        "globalRegexPattern": "",
+        "globalShape": "hexagon_pointed_top",
+        "globalShowTimestampEnabled": false,
+        "globalShowTimestampFontSize": 12,
+        "globalShowTimestampFormat": "YYYY-MM-DD HH:mm:ss",
+        "globalShowTimestampPosition": "below_value",
+        "globalShowTimestampYOffset": 0,
+        "globalShowTooltipColumnHeadersEnabled": true,
+        "globalShowValueEnabled": true,
+        "globalTextFontAutoColorEnabled": false,
+        "globalTextFontColor": "#000000",
+        "globalTextFontFamily": "Roboto",
+        "globalThresholdsConfig": [],
+        "globalTooltipsEnabled": true,
+        "globalTooltipsFontFamily": "Roboto",
+        "globalTooltipsShowTimestampEnabled": true,
+        "globalTooltipsShowValueEnabled": true,
+        "globalUnitFormat": "percent",
+        "layoutDisplayLimit": 100,
+        "layoutNumColumns": 8,
+        "layoutNumRows": 8,
+        "overrideConfig": {
+          "overrides": [
+            {
+              "alias": "",
+              "clickThrough": "https://observability.fci-ccm.com/grafana/d/service-hive-opstree/services-hive-dashboard-final?orgId=1&from=now-1h&to=now&timezone=browser&var-datasource=victoriametrics&var-cluster=varta-dev-eks&var-namespace=varta-dev&var-application=$1",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": true,
+              "clickThroughSanitize": true,
+              "colors": [
+                "#299c46",
+                "#ed8128",
+                "#f53636",
+                "#0a55a1"
+              ],
+              "decimals": "1",
+              "enabled": true,
+              "label": "service_panel",
+              "metricName": "([^\"]+)",
+              "operatorName": "mean",
+              "order": 0,
+              "prefix": "",
+              "showTimestampEnabled": false,
+              "showTimestampFormat": "HH:mm:ss",
+              "showTimestampYOffset": 0,
+              "suffix": "",
+              "thresholds": [],
+              "unitFormat": "percent"
+            }
+          ]
+        },
+        "sortByDirection": 1,
+        "sortByField": "value",
+        "tooltipDisplayMode": "all",
+        "tooltipDisplayTextTriggeredEmpty": "OK",
+        "tooltipPrimarySortByField": "thresholdLevel",
+        "tooltipPrimarySortDirection": 1,
+        "tooltipSecondarySortByField": "value",
+        "tooltipSecondarySortDirection": 1
+      },
+      "pluginVersion": "2.1.14",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriametrics"
+          },
+          "editorMode": "code",
+          "expr": "  ( sum by (service_name) (\n    traces_span_metrics_duration_milliseconds_count{cluster=\"$cluster\",namespace=\"$namespace\",span_kind=\"SPAN_KIND_SERVER\", http_response_status_code=~\"^2.*|^3.*\"}[1m]\n  )\n    /\n  sum by (service_name) (\n    traces_span_metrics_duration_milliseconds_count{cluster=\"$cluster\",namespace=\"$namespace\",span_kind=\"SPAN_KIND_SERVER\"}[1m]\n  )\n   ) * 100 == 100",
+          "instant": false,
+          "legendFormat": "{{service_name}}",
+          "range": true,
+          "refId": "success"
+        }
+      ],
+      "title": "100% Success Rate",
+      "type": "grafana-polystat-panel"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 11
+      },
+      "id": 29,
+      "panels": [],
+      "title": "Services Request Rate",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "description": "request rate per minute over last 1 minutes",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 11,
+        "w": 8,
+        "x": 0,
+        "y": 12
+      },
+      "id": 41,
+      "options": {
+        "autoSizeColumns": true,
+        "autoSizePolygons": true,
+        "autoSizeRows": true,
+        "compositeConfig": {
+          "animationSpeed": "1500",
+          "composites": [],
+          "enabled": true
+        },
+        "compositeGlobalAliasingEnabled": false,
+        "ellipseCharacters": 18,
+        "ellipseEnabled": false,
+        "globalAutoScaleFonts": true,
+        "globalClickthrough": "",
+        "globalClickthroughCustomTarget": "",
+        "globalClickthroughCustomTargetEnabled": false,
+        "globalClickthroughNewTabEnabled": true,
+        "globalClickthroughSanitizedEnabled": true,
+        "globalDecimals": 2,
+        "globalDisplayMode": "all",
+        "globalDisplayTextTriggeredEmpty": "OK",
+        "globalFillColor": "rgba(10, 85, 161, 1)",
+        "globalFontSize": 12,
+        "globalGradientsEnabled": true,
+        "globalOperator": "mean",
+        "globalPolygonBorderColor": "rgba(0, 0, 0, 0)",
+        "globalPolygonBorderSize": 2,
+        "globalPolygonSize": 25,
+        "globalRegexPattern": "",
+        "globalShape": "hexagon_pointed_top",
+        "globalShowTimestampEnabled": false,
+        "globalShowTimestampFontSize": 12,
+        "globalShowTimestampFormat": "YYYY-MM-DD HH:mm:ss",
+        "globalShowTimestampPosition": "below_value",
+        "globalShowTimestampYOffset": 0,
+        "globalShowTooltipColumnHeadersEnabled": true,
+        "globalShowValueEnabled": true,
+        "globalTextFontAutoColorEnabled": false,
+        "globalTextFontColor": "#000000",
+        "globalTextFontFamily": "Roboto",
+        "globalThresholdsConfig": [
+          {
+            "color": "#F2495C",
+            "state": 0,
+            "value": 0
+          }
+        ],
+        "globalTooltipsEnabled": true,
+        "globalTooltipsFontFamily": "Roboto",
+        "globalTooltipsShowTimestampEnabled": true,
+        "globalTooltipsShowValueEnabled": true,
+        "globalUnitFormat": "reqpm",
+        "layoutDisplayLimit": 100,
+        "layoutNumColumns": 8,
+        "layoutNumRows": 5,
+        "overrideConfig": {
+          "overrides": [
+            {
+              "alias": "",
+              "clickThrough": "https://observability.fci-ccm.com/grafana/d/service-hive-opstree/services-hive-dashboard-final?orgId=1&from=now-1h&to=now&timezone=browser&var-datasource=victoriametrics&var-cluster=varta-dev-eks&var-namespace=varta-dev&var-application=$1",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": true,
+              "clickThroughSanitize": true,
+              "colors": [
+                "#299c46",
+                "#ed8128",
+                "#f53636",
+                "#0a55a1"
+              ],
+              "decimals": "1",
+              "enabled": true,
+              "label": "service_name",
+              "metricName": "([^\"]+)",
+              "operatorName": "mean",
+              "order": 0,
+              "prefix": "",
+              "showTimestampEnabled": false,
+              "showTimestampFormat": "HH:mm:ss",
+              "showTimestampYOffset": 0,
+              "suffix": "",
+              "thresholds": [],
+              "unitFormat": "reqpm"
+            }
+          ]
+        },
+        "sortByDirection": 1,
+        "sortByField": "value",
+        "tooltipDisplayMode": "all",
+        "tooltipDisplayTextTriggeredEmpty": "OK",
+        "tooltipPrimarySortByField": "thresholdLevel",
+        "tooltipPrimarySortDirection": 1,
+        "tooltipSecondarySortByField": "value",
+        "tooltipSecondarySortDirection": 1
+      },
+      "pluginVersion": "2.1.14",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriametrics"
+          },
+          "editorMode": "code",
+          "expr": "sum(rate(traces_span_metrics_duration_milliseconds_count{cluster=\"$cluster\",namespace=\"$namespace\",service_name=~\".*\", span_kind=\"SPAN_KIND_SERVER\"}[1m])) by (service_name) \n> 0 and sum(rate(traces_span_metrics_duration_milliseconds_count{cluster=\"$cluster\",namespace=\"$namespace\",service_name=~\".*\", span_kind=\"SPAN_KIND_SERVER\"}[1m])) by (service_name) <= 10\n",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "{{service_name}}",
+          "range": true,
+          "refId": "B"
+        }
+      ],
+      "title": "Inactive",
+      "type": "grafana-polystat-panel"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "description": "request rate per minute over the last 1 minute",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 11,
+        "w": 8,
+        "x": 8,
+        "y": 12
+      },
+      "id": 38,
+      "options": {
+        "autoSizeColumns": true,
+        "autoSizePolygons": true,
+        "autoSizeRows": true,
+        "compositeConfig": {
+          "animationSpeed": "1500",
+          "composites": [],
+          "enabled": true
+        },
+        "compositeGlobalAliasingEnabled": false,
+        "ellipseCharacters": 18,
+        "ellipseEnabled": false,
+        "globalAutoScaleFonts": true,
+        "globalClickthrough": "",
+        "globalClickthroughCustomTarget": "",
+        "globalClickthroughCustomTargetEnabled": false,
+        "globalClickthroughNewTabEnabled": true,
+        "globalClickthroughSanitizedEnabled": true,
+        "globalDecimals": 2,
+        "globalDisplayMode": "all",
+        "globalDisplayTextTriggeredEmpty": "OK",
+        "globalFillColor": "rgba(10, 85, 161, 1)",
+        "globalFontSize": 12,
+        "globalGradientsEnabled": true,
+        "globalOperator": "mean",
+        "globalPolygonBorderColor": "rgba(0, 0, 0, 0)",
+        "globalPolygonBorderSize": 2,
+        "globalPolygonSize": 25,
+        "globalRegexPattern": "",
+        "globalShape": "hexagon_pointed_top",
+        "globalShowTimestampEnabled": false,
+        "globalShowTimestampFontSize": 12,
+        "globalShowTimestampFormat": "YYYY-MM-DD HH:mm:ss",
+        "globalShowTimestampPosition": "below_value",
+        "globalShowTimestampYOffset": 0,
+        "globalShowTooltipColumnHeadersEnabled": true,
+        "globalShowValueEnabled": true,
+        "globalTextFontAutoColorEnabled": false,
+        "globalTextFontColor": "#000000",
+        "globalTextFontFamily": "Roboto",
+        "globalThresholdsConfig": [
+          {
+            "color": "#FFCB7D",
+            "state": 0,
+            "value": 0
+          }
+        ],
+        "globalTooltipsEnabled": true,
+        "globalTooltipsFontFamily": "Roboto",
+        "globalTooltipsShowTimestampEnabled": true,
+        "globalTooltipsShowValueEnabled": true,
+        "globalUnitFormat": "reqpm",
+        "layoutDisplayLimit": 100,
+        "layoutNumColumns": 8,
+        "layoutNumRows": 5,
+        "overrideConfig": {
+          "overrides": [
+            {
+              "alias": "",
+              "clickThrough": "https://observability.fci-ccm.com/grafana/d/service-hive-opstree/services-hive-dashboard-final?orgId=1&from=now-1h&to=now&timezone=browser&var-datasource=victoriametrics&var-cluster=varta-dev-eks&var-namespace=varta-dev&var-application=$1",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": true,
+              "clickThroughSanitize": true,
+              "colors": [
+                "#299c46",
+                "#ed8128",
+                "#f53636",
+                "#0a55a1"
+              ],
+              "decimals": "1",
+              "enabled": true,
+              "label": "service_panel",
+              "metricName": "([^\"]+)",
+              "operatorName": "mean",
+              "order": 0,
+              "prefix": "",
+              "showTimestampEnabled": false,
+              "showTimestampFormat": "HH:mm:ss",
+              "showTimestampYOffset": 0,
+              "suffix": "",
+              "thresholds": [],
+              "unitFormat": "reqpm"
+            }
+          ]
+        },
+        "sortByDirection": 1,
+        "sortByField": "value",
+        "tooltipDisplayMode": "all",
+        "tooltipDisplayTextTriggeredEmpty": "OK",
+        "tooltipPrimarySortByField": "thresholdLevel",
+        "tooltipPrimarySortDirection": 1,
+        "tooltipSecondarySortByField": "value",
+        "tooltipSecondarySortDirection": 1
+      },
+      "pluginVersion": "2.1.14",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriametrics"
+          },
+          "editorMode": "code",
+          "expr": "sum(rate(traces_span_metrics_duration_milliseconds_count{cluster=\"$cluster\",namespace=\"$namespace\",service_name=~\".*\", span_kind=\"SPAN_KIND_SERVER\"}[1m])) by (service_name) > 10 \nand sum(rate(traces_span_metrics_duration_milliseconds_count{cluster=\"$cluster\",namespace=\"$namespace\",service_name=~\".*\", span_kind=\"SPAN_KIND_SERVER\"}[1m])) by (service_name) <= 6000\n",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "{{service_name}}",
+          "range": true,
+          "refId": "B"
+        }
+      ],
+      "title": "Moderately Active",
+      "type": "grafana-polystat-panel"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "description": "request rate per minute over last 1 minutes",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 11,
+        "w": 8,
+        "x": 16,
+        "y": 12
+      },
+      "id": 42,
+      "options": {
+        "autoSizeColumns": true,
+        "autoSizePolygons": true,
+        "autoSizeRows": true,
+        "compositeConfig": {
+          "animationSpeed": "1500",
+          "composites": [],
+          "enabled": true
+        },
+        "compositeGlobalAliasingEnabled": false,
+        "ellipseCharacters": 18,
+        "ellipseEnabled": false,
+        "globalAutoScaleFonts": true,
+        "globalClickthrough": "",
+        "globalClickthroughCustomTarget": "",
+        "globalClickthroughCustomTargetEnabled": false,
+        "globalClickthroughNewTabEnabled": true,
+        "globalClickthroughSanitizedEnabled": true,
+        "globalDecimals": 2,
+        "globalDisplayMode": "all",
+        "globalDisplayTextTriggeredEmpty": "OK",
+        "globalFillColor": "rgba(10, 85, 161, 1)",
+        "globalFontSize": 12,
+        "globalGradientsEnabled": true,
+        "globalOperator": "mean",
+        "globalPolygonBorderColor": "rgba(0, 0, 0, 0)",
+        "globalPolygonBorderSize": 2,
+        "globalPolygonSize": 25,
+        "globalRegexPattern": "",
+        "globalShape": "hexagon_pointed_top",
+        "globalShowTimestampEnabled": false,
+        "globalShowTimestampFontSize": 12,
+        "globalShowTimestampFormat": "YYYY-MM-DD HH:mm:ss",
+        "globalShowTimestampPosition": "below_value",
+        "globalShowTimestampYOffset": 0,
+        "globalShowTooltipColumnHeadersEnabled": true,
+        "globalShowValueEnabled": true,
+        "globalTextFontAutoColorEnabled": false,
+        "globalTextFontColor": "#000000",
+        "globalTextFontFamily": "Roboto",
+        "globalThresholdsConfig": [
+          {
+            "color": "#96D98D",
+            "state": 0,
+            "value": 0
+          }
+        ],
+        "globalTooltipsEnabled": true,
+        "globalTooltipsFontFamily": "Roboto",
+        "globalTooltipsShowTimestampEnabled": true,
+        "globalTooltipsShowValueEnabled": true,
+        "globalUnitFormat": "reqpm",
+        "layoutDisplayLimit": 100,
+        "layoutNumColumns": 8,
+        "layoutNumRows": 5,
+        "overrideConfig": {
+          "overrides": [
+            {
+              "alias": "",
+              "clickThrough": "https://observability.fci-ccm.com/grafana/d/service-hive-opstree/services-hive-dashboard-final?orgId=1&from=now-1h&to=now&timezone=browser&var-datasource=victoriametrics&var-cluster=varta-dev-eks&var-namespace=varta-dev&var-application=$1",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": true,
+              "clickThroughSanitize": true,
+              "colors": [
+                "#299c46",
+                "#ed8128",
+                "#f53636",
+                "#0a55a1"
+              ],
+              "decimals": "1",
+              "enabled": true,
+              "label": "service_panel",
+              "metricName": "([^\"]+)",
+              "operatorName": "mean",
+              "order": 0,
+              "prefix": "",
+              "showTimestampEnabled": false,
+              "showTimestampFormat": "HH:mm:ss",
+              "showTimestampYOffset": 0,
+              "suffix": "",
+              "thresholds": [],
+              "unitFormat": "reqpm"
+            }
+          ]
+        },
+        "sortByDirection": 1,
+        "sortByField": "value",
+        "tooltipDisplayMode": "all",
+        "tooltipDisplayTextTriggeredEmpty": "OK",
+        "tooltipPrimarySortByField": "thresholdLevel",
+        "tooltipPrimarySortDirection": 1,
+        "tooltipSecondarySortByField": "value",
+        "tooltipSecondarySortDirection": 1
+      },
+      "pluginVersion": "2.1.14",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriametrics"
+          },
+          "editorMode": "code",
+          "expr": "sum(rate(traces_span_metrics_duration_milliseconds_count{cluster=\"$cluster\",namespace=\"$namespace\",service_name=~\".*\", span_kind=\"SPAN_KIND_SERVER\"}[1m])) by (service_name) > 6000\nand sum(rate(traces_span_metrics_duration_milliseconds_count{cluster=\"$cluster\",namespace=\"$namespace\",service_name=~\".*\", span_kind=\"SPAN_KIND_SERVER\"}[1m])) by (service_name) <= 60000\n",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "{{service_name}}",
+          "range": true,
+          "refId": "B"
+        }
+      ],
+      "title": "Active",
+      "type": "grafana-polystat-panel"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 23
+      },
+      "id": 204,
+      "panels": [],
+      "title": "Endpoints",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "description": "Endpoints in current namespace/cluster",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 24
+      },
+      "id": 202,
+      "options": {
+        "autoSizeColumns": true,
+        "autoSizePolygons": true,
+        "autoSizeRows": true,
+        "compositeConfig": {
+          "animationSpeed": "1500",
+          "composites": [
+            {
+              "isTemplated": true,
+              "name": "$namespace/$endpoint",
+              "pattern": ".*$endpoint.*"
+            }
+          ],
+          "enabled": true
+        },
+        "compositeGlobalAliasingEnabled": false,
+        "ellipseCharacters": 40,
+        "ellipseEnabled": true,
+        "globalAutoScaleFonts": true,
+        "globalClickthrough": "",
+        "globalClickthroughCustomTarget": "",
+        "globalClickthroughCustomTargetEnabled": false,
+        "globalClickthroughNewTabEnabled": true,
+        "globalClickthroughSanitizedEnabled": true,
+        "globalDecimals": 2,
+        "globalDisplayMode": "all",
+        "globalDisplayTextTriggeredEmpty": "No Endpoints",
+        "globalFillColor": "rgba(255, 140, 0, 1)",
+        "globalFontSize": 30,
+        "globalGradientsEnabled": true,
+        "globalOperator": "mean",
+        "globalPolygonBorderColor": "rgba(0, 0, 0, 0)",
+        "globalPolygonBorderSize": 5,
+        "globalPolygonSize": 200,
+        "globalRegexPattern": "",
+        "globalShape": "hexagon_pointed_top",
+        "globalShowTimestampEnabled": false,
+        "globalShowTimestampFontSize": 12,
+        "globalShowTimestampFormat": "YYYY-MM-DD HH:mm:ss",
+        "globalShowTimestampPosition": "below_value",
+        "globalShowTimestampYOffset": 0,
+        "globalShowTooltipColumnHeadersEnabled": true,
+        "globalShowValueEnabled": true,
+        "globalTextFontAutoColorEnabled": false,
+        "globalTextFontColor": "#000000",
+        "globalTextFontFamily": "Roboto",
+        "globalThresholdsConfig": [
+          {
+            "color": "#C4162A",
+            "state": 0,
+            "value": 0
+          },
+          {
+            "color": "#E0B400",
+            "state": 2,
+            "value": 80
+          },
+          {
+            "color": "#37872D",
+            "state": 1,
+            "value": 100
+          }
+        ],
+        "globalTooltipsEnabled": true,
+        "globalTooltipsFontFamily": "Roboto",
+        "globalTooltipsShowTimestampEnabled": true,
+        "globalTooltipsShowValueEnabled": true,
+        "globalUnitFormat": "percent",
+        "layoutDisplayLimit": 100,
+        "layoutNumColumns": 8,
+        "layoutNumRows": 8,
+        "overrideConfig": {
+          "overrides": []
+        },
+        "sortByDirection": 1,
+        "sortByField": "name",
+        "tooltipDisplayMode": "all",
+        "tooltipDisplayTextTriggeredEmpty": "OK",
+        "tooltipPrimarySortByField": "thresholdLevel",
+        "tooltipPrimarySortDirection": 1,
+        "tooltipSecondarySortByField": "value",
+        "tooltipSecondarySortDirection": 1
+      },
+      "pluginVersion": "2.1.14",
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "avg_over_time(probe_success{cluster=~\"$cluster\",instance=~\"$endpoint\"}[1h]) * 100",
+          "legendFormat": "{{instance}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Endpoints Success Rate",
+      "type": "grafana-polystat-panel"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 36
+      },
+      "id": 205,
+      "panels": [],
+      "title": "EKS Nodes",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 17,
+        "w": 12,
+        "x": 0,
+        "y": 37
+      },
+      "id": 203,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.0.2",
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "topk(10, sum(rate(node_cpu_seconds_total{cluster=\"$cluster\", container!=\"\"}[5m])) by (node))",
+          "legendFormat": "{{node}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Top 10 Nodes by CPU Usage",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 17,
+        "w": 12,
+        "x": 12,
+        "y": 37
+      },
+      "id": 4,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.0.2",
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "100 * (1 - (node_memory_MemAvailable_bytes{cluster=\"$cluster\"} / node_memory_MemTotal_bytes{cluster=\"$cluster\"}))",
+          "legendFormat": "{{ instance }}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Top 10 Nodes by Memory Usage ",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 13,
+        "w": 24,
+        "x": 0,
+        "y": 54
+      },
+      "id": 3,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.0.2",
+      "targets": [
+        {
+          "expr": "count(kube_node_info{cluster=\"$cluster\"})",
+          "refId": "A"
+        }
+      ],
+      "title": "Nodes Count Trend Widget",
+      "type": "timeseries"
+    }
+  ],
+  "preload": false,
+  "refresh": "30s",
+  "schemaVersion": 41,
+  "tags": [
+    "ot-summary",
+    "ot-kit"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "text": "varta-dev-eks",
+          "value": "varta-dev-eks"
+        },
+        "datasource": "victoriametrics",
+        "includeAll": false,
+        "label": "account",
+        "name": "cluster",
+        "options": [],
+        "query": "label_values(kube_node_info, cluster)",
+        "refresh": 1,
+        "type": "query"
+      },
+      {
+        "current": {
+          "text": "varta-dev",
+          "value": "varta-dev"
+        },
+        "datasource": "victoriametrics",
+        "definition": "label_values(kube_deployment_status_replicas_available{job=\"kube-state-metrics\", cluster=\"$cluster\"},namespace)",
+        "includeAll": false,
+        "label": "Namespace",
+        "name": "namespace",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(kube_deployment_status_replicas_available{job=\"kube-state-metrics\", cluster=\"$cluster\"},namespace)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "allValue": ".*",
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "victoriametrics"
+        },
+        "definition": "label_values(probe_success{cluster=\"$cluster\"},instance)",
+        "description": "endpoint",
+        "includeAll": true,
+        "label": "endpoint",
+        "name": "endpoint",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(probe_success{cluster=\"$cluster\"},instance)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "sort": 1,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-5m",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Global-Dashboard",
+  "uid": "global_service",
+  "version": 83
+}

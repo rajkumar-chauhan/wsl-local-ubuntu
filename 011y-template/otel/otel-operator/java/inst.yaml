@@ -1,0 +1,12 @@
+apiVersion: opentelemetry.io/v1alpha1
+kind: Instrumentation
+metadata:
+  name: java-instrumentation
+  namespace: observability
+spec:
+  java:
+    image: otel-autoinstrumentation-java-nonroot:2.19.0
+    env:
+      - name: OTEL_EXPORTER_OTLP_ENDPOINT
+        value: http://collector.observability.svc.cluster.local:4317
+

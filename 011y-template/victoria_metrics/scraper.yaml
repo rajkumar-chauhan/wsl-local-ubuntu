@@ -1,0 +1,15 @@
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMStaticScrape
+metadata:
+  name: external-node-exporters
+  namespace: monitoring 
+spec:
+  jobName: "external-node-exporter"
+  targetEndpoints:
+  - targets:
+    - 192.168.10.211:9100
+    - 192.168.10.212:9100
+    - 192.168.10.213:9100
+    labels:
+      cluster: external
+      component: node-exporter

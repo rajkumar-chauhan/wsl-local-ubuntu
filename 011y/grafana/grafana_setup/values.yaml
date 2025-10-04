@@ -1,0 +1,45 @@
+grafana:
+  sidecar:
+    dashboards:
+      enabled: true
+    datasources:
+      enabled: true
+      label: grafana_datasource
+      labelValue: "1"
+
+  resources:
+    requests:
+      cpu: 1
+      memory: 1Gi
+    limits:
+      cpu: 1
+      memory: 1Gi
+
+  # ingress:
+  #   enabled: true
+  #   ingressClassName: kong
+  #   annotations: {}
+  #     # konghq.com/strip-path: "true"  # Optional if Kong needs it
+  #     # kubernetes.io/tls-acme: "true" # Uncomment if using cert-manager
+  #   labels: {}
+  #   hosts:
+  #     - grafana.k8s.opstree.dev
+  #   path: /
+  #   pathType: Prefix
+
+  persistence:
+    enabled: true
+    type: sts
+    accessModes:
+      - ReadWriteOnce
+    size: 4Gi
+    finalizers:
+      - kubernetes.io/pvc-protection
+  tolerations:
+    - key: "team"
+      operator: "Equal"
+      value: "o11y"
+      effect: "NoSchedule"
+  # nodeSelector:
+  #   node-role.kubernetes.io/o11y: o11y
+

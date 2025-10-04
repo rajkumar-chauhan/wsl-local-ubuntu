@@ -1,0 +1,9 @@
+grafana:
+  url: http://grafana.monitoring.svc.cluster.local
+  adminUser: admin
+  adminPasswordSecret: grafana
+  adminPasswordKey: admin-password
+
+dashboards:
+  mountPath: /dashboards
+  configMapName: grafana-dashboards

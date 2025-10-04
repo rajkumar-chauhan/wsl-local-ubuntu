@@ -1,0 +1,1042 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 74,
+  "links": [],
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 4,
+      "panels": [],
+      "title": "Business Unit Services",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true,
+            "inspect": false
+          },
+          "mappings": [
+            {
+              "options": {
+                "from": 0,
+                "result": {
+                  "index": 0,
+                  "text": "🟢"
+                },
+                "to": 500
+              },
+              "type": "range"
+            },
+            {
+              "options": {
+                "from": 500,
+                "result": {
+                  "index": 1,
+                  "text": "🔴"
+                },
+                "to": 10000
+              },
+              "type": "range"
+            },
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "index": 2,
+                  "text": "🟢"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "service_name"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "targetBlank": true,
+                    "title": "observability",
+                    "url": "https://grafana.k8s.opstree.dev/d/betwcqgqs9zi8f/bu?orgId=1&var-datasource=victoriametrics&var-cluster=&var-namespace=otel-demo&var-application=${__value.text}&var-pods=$__all&var-container=$__all&var-route=$__all&var-search=&var-logging=logging&var-tempo=tempo&${__url_time_range}"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Error Code"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "from": 10,
+                      "result": {
+                        "index": 0,
+                        "text": "🔴"
+                      },
+                      "to": 100
+                    },
+                    "type": "range"
+                  },
+                  {
+                    "options": {
+                      "from": 0,
+                      "result": {
+                        "index": 1,
+                        "text": "🟢"
+                      },
+                      "to": 10
+                    },
+                    "type": "range"
+                  },
+                  {
+                    "options": {
+                      "match": "null",
+                      "result": {
+                        "index": 2,
+                        "text": "🟢"
+                      }
+                    },
+                    "type": "special"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 1
+      },
+      "id": 5,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "11.6.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriametrics"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "histogram_quantile(0.95, sum by(le, service_name) (rate(traces_span_metrics_duration_milliseconds_bucket{span_kind=\"SPAN_KIND_SERVER\",BU=~\"$business_unit\"}[5m])))",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "Latency",
+          "range": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriametrics"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "(sum(rate(traces_span_metrics_duration_milliseconds_count{http_status_code!~\"^2.*|^3.*|^4.*\",BU=~\"$business_unit\"}[5m])) by (service_name)) / (sum(rate(traces_span_metrics_duration_milliseconds_count{BU=~\"$business_unit\"}[5m])) by (service_name)) * 100",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "Error Code",
+          "range": false,
+          "refId": "B"
+        }
+      ],
+      "title": "Latency Unit SLO",
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "includeByName": {},
+            "indexByName": {},
+            "renameByName": {
+              "BU": "Business Unit",
+              "Value #A": "Latency",
+              "Value #B": "Error Code"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 9
+      },
+      "id": 3,
+      "panels": [],
+      "title": "Load Balancer Metrics",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true,
+            "inspect": false
+          },
+          "mappings": [
+            {
+              "options": {
+                "from": 0,
+                "result": {
+                  "index": 0,
+                  "text": "🟢"
+                },
+                "to": 500
+              },
+              "type": "range"
+            },
+            {
+              "options": {
+                "from": 500,
+                "result": {
+                  "index": 1,
+                  "text": "🔴"
+                },
+                "to": 10000
+              },
+              "type": "range"
+            },
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "index": 2,
+                  "text": "🟢"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "service_name"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "observability",
+                    "url": "https://grafana.k8s.opstree.dev/d/betwcqgqs9zi8f/bu?orgId=1&from=now-12h&to=now&timezone=browser&var-datasource=victoriametrics&var-cluster=&var-namespace=otel-demo&var-application=product-catalog&var-pods=$__all&var-container=$__all&var-route=$__all&var-search=&var-logging=logging&var-tempo=tempo&refresh=1m"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 10
+      },
+      "id": 10,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "11.6.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriametrics"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "histogram_quantile(0.95, sum by(le, route) (rate(kong_request_latency_ms_bucket{route=\"httproute.otel-demo.o11y-frontend.0.0\"}[5m])))",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "Latency",
+          "range": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriametrics"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum(rate(kong_http_requests_total{code=~\"^5.*\",route=\"httproute.otel-demo.o11y-frontend.0.0\"}[5m])) by (route) / (sum(rate(kong_http_requests_total{route=\"httproute.otel-demo.o11y-frontend.0.0\"}[5m])) by (route)) * 100",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "Error Code",
+          "range": false,
+          "refId": "B"
+        }
+      ],
+      "title": "LoadBalancer SLO",
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "includeByName": {},
+            "indexByName": {},
+            "renameByName": {
+              "BU": "Business Unit",
+              "Value #A": "Latency",
+              "Value #B": "Error Code",
+              "route": "Load Balancer Name"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 14
+      },
+      "id": 6,
+      "panels": [],
+      "title": "Middleware Metrics",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true,
+            "inspect": false
+          },
+          "mappings": [
+            {
+              "options": {
+                "from": 0,
+                "result": {
+                  "index": 0,
+                  "text": "🟢"
+                },
+                "to": 500
+              },
+              "type": "range"
+            },
+            {
+              "options": {
+                "from": 500,
+                "result": {
+                  "index": 1,
+                  "text": "🟢"
+                },
+                "to": 10000
+              },
+              "type": "range"
+            },
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "index": 2,
+                  "text": "🟢"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Latency"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "from": 0,
+                      "result": {
+                        "index": 0,
+                        "text": "🟢"
+                      },
+                      "to": 250
+                    },
+                    "type": "range"
+                  },
+                  {
+                    "options": {
+                      "from": 250,
+                      "result": {
+                        "index": 1,
+                        "text": "🔴"
+                      },
+                      "to": 10000
+                    },
+                    "type": "range"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 15
+      },
+      "id": 11,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "11.6.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriametrics"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum(rate(redis_db_avg_ttl_milliseconds[5m])) by (env)",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "valkey-cart",
+          "range": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriametrics"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum(rate(redis_connections_rejected_total[5m])) by (env)",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "valkey-cart",
+          "range": false,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriametrics"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum(redis_uptime_seconds_total) by (env) * 0",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "valkey-cart",
+          "range": false,
+          "refId": "C"
+        }
+      ],
+      "title": "Redis SLO",
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "includeByName": {},
+            "indexByName": {},
+            "renameByName": {
+              "BU": "Business Unit",
+              "Value #A": "Latency",
+              "Value #B": "Health",
+              "Value #C": "Uptime",
+              "env": "Database"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true,
+            "inspect": false
+          },
+          "mappings": [
+            {
+              "options": {
+                "from": 0,
+                "result": {
+                  "index": 0,
+                  "text": "🟢"
+                },
+                "to": 500
+              },
+              "type": "range"
+            },
+            {
+              "options": {
+                "from": 500,
+                "result": {
+                  "index": 1,
+                  "text": "🟢"
+                },
+                "to": 10000
+              },
+              "type": "range"
+            },
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "index": 2,
+                  "text": "🟢"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 19
+      },
+      "id": 12,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "11.6.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriametrics"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum(rate(kafka_consumer_records_lag[5m])) by (env)",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "Latency",
+          "range": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriametrics"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum(rate(kafka_consumer_records_lag[5m])) by (env)",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "Error Code",
+          "range": false,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriametrics"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum(kafka_consumer_records_lag) by (env) * 0",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "C"
+        }
+      ],
+      "title": "Kafka SLO",
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "includeByName": {},
+            "indexByName": {},
+            "renameByName": {
+              "BU": "Business Unit",
+              "Value #A": "Latency",
+              "Value #B": "Health",
+              "Value #C": "Uptime",
+              "env": "Environment",
+              "topic": "Topic"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 23
+      },
+      "id": 9,
+      "panels": [],
+      "title": "Database Metrics",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true,
+            "inspect": false
+          },
+          "mappings": [
+            {
+              "options": {
+                "from": 0,
+                "result": {
+                  "index": 0,
+                  "text": "🟢"
+                },
+                "to": 500
+              },
+              "type": "range"
+            },
+            {
+              "options": {
+                "from": 500,
+                "result": {
+                  "index": 1,
+                  "text": "🟢"
+                },
+                "to": 10000
+              },
+              "type": "range"
+            },
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "index": 2,
+                  "text": "🟢"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Health"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "0": {
+                        "index": 1,
+                        "text": "🔴"
+                      },
+                      "1": {
+                        "index": 0,
+                        "text": "🟢"
+                      }
+                    },
+                    "type": "value"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Indexing Latency"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "from": 0,
+                      "result": {
+                        "index": 0,
+                        "text": "🟢"
+                      },
+                      "to": 1000
+                    },
+                    "type": "range"
+                  },
+                  {
+                    "options": {
+                      "from": 1000,
+                      "result": {
+                        "index": 1,
+                        "text": "🔴"
+                      },
+                      "to": 100000000
+                    },
+                    "type": "range"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 24
+      },
+      "id": 13,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "11.6.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriametrics"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "max(elasticsearch_cluster_health) by (k8s_cluster)",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "Latency",
+          "range": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriametrics"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum(rate(elasticsearch_index_operations_time_milliseconds_total{operation=\"index\"}[5m])) by (k8s_cluster) / sum(rate(elasticsearch_index_operations_completed_total{operation=\"index\"}[5m])) by (k8s_cluster) * 1000",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "Error Code",
+          "range": false,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriametrics"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum(rate(elasticsearch_index_operations_time_milliseconds_total{operation=\"query\"}[5m])) by (k8s_cluster) / sum(rate(elasticsearch_index_operations_completed_total{operation=\"query\"}[5m])) by (k8s_cluster) * 1000",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "C"
+        }
+      ],
+      "title": "Opensearch SLO",
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "includeByName": {},
+            "indexByName": {},
+            "renameByName": {
+              "BU": "Business Unit",
+              "Value #A": "Health",
+              "Value #B": "Indexing Latency",
+              "Value #C": "Search Latency",
+              "env": "Environment",
+              "topic": "Topic"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    }
+  ],
+  "preload": false,
+  "schemaVersion": 41,
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "text": "A",
+          "value": "A"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "victoriametrics"
+        },
+        "definition": "label_values(traces_span_metrics_duration_milliseconds_count,BU)",
+        "name": "business_unit",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(traces_span_metrics_duration_milliseconds_count,BU)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Business Unit Details",
+  "uid": "detx34wnkjxfkc",
+  "version": 38
+}

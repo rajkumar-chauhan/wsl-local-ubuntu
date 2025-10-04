@@ -1,0 +1,17 @@
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMStaticScrape
+metadata:
+  name: hercules-exporters
+  namespace: monitoring
+spec:
+  jobName: "Hercules"
+  targetEndpoints:
+  - targets:
+    - 192.168.10.119:9100
+    - 192.168.10.151:9100
+    - 192.168.10.52:9100
+    - 192.168.10.22:9100
+    
+    labels:
+      cluster: external
+      component: node-exporter

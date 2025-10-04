@@ -1,0 +1,121 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "grafana-dashboard-uploader.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "grafana-dashboard-uploader.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+spec:
+  backoffLimit: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "grafana-dashboard-uploader.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "grafana-dashboard-uploader.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: uploader
+          image: ubuntu:22.04
+          command:
+            - /bin/bash
+            - -c
+            - |
+              set -e
+              echo "📦 Installing tools..."
+              apt update && apt install -y curl jq uuid-runtime
+
+              echo "📁 Writing dashboards to disk..."
+              mkdir -p {{ .Values.dashboards.mountPath }}
+              {{- range $path, $file := .Files.Glob "files/Opstree/**.json" }}
+              mkdir -p $(dirname {{ printf "%s/%s" $.Values.dashboards.mountPath (trimPrefix "files/Opstree/" $path) | quote }})
+              cat > {{ printf "%s/%s" $.Values.dashboards.mountPath (trimPrefix "files/Opstree/" $path) }} <<EOF
+              {{ $file | toString | nindent 16 }}
+              EOF
+              {{- end }}
+
+              echo "🔐 Reading Grafana credentials..."
+              ADMIN_USER="{{ .Values.grafana.adminUser }}"
+              ADMIN_PASSWORD="{{ .Values.grafana.adminPassword }}"
+              AUTH_HEADER="Authorization: Basic $(echo -n ${ADMIN_USER}:${ADMIN_PASSWORD} | base64 -w0)"
+              JSON_HEADER="Content-Type: application/json"
+              GRAFANA_URL="{{ .Values.grafana.url }}"
+              LOCAL_ROOT="{{ .Values.dashboards.mountPath }}"
+              OVERWRITE="true"
+
+              declare -A UIDMAP
+              UIDMAP["."]=""
+
+              urlencode() {
+                jq -rn --arg v "$1" '$v|@uri'
+              }
+
+              search_folder_uids() {
+                curl -s -H "$AUTH_HEADER" "${GRAFANA_URL}/api/search?type=dash-folder&query=$(urlencode "$1")" | jq -r '.[].uid'
+              }
+
+              get_parent_uid() {
+                curl -s -H "$AUTH_HEADER" "${GRAFANA_URL}/api/folders/$1" | jq -r '.parentUid // empty'
+              }
+
+              create_folder() {
+                local title="$1" parent_uid="$2"
+                for uid in $(search_folder_uids "$title"); do
+                  if [[ "$(get_parent_uid "$uid")" == "$parent_uid" ]]; then
+                    echo "$uid"
+                    return
+                  fi
+                done
+                local new_uid=$(uuidgen | tr '[:upper:]' '[:lower:]' | cut -c1-12)
+                local payload_json
+                if [[ -n "$parent_uid" ]]; then
+                  payload_json=$(jq -n --arg t "$title" --arg u "$new_uid" --arg p "$parent_uid" '{title:$t,uid:$u,parentUid:$p}')
+                else
+                  payload_json=$(jq -n --arg t "$title" --arg u "$new_uid" '{title:$t,uid:$u}')
+                fi
+                resp=$(curl -s -X POST "$GRAFANA_URL/api/folders" -H "$AUTH_HEADER" -H "$JSON_HEADER" -d "$payload_json")
+                uid=$(echo "$resp" | jq -r '.uid // empty')
+                if [[ -z "$uid" ]]; then
+                  echo "❌ Failed to create folder '$title' - $resp" >&2
+                  exit 1
+                fi
+                echo "$uid"
+              }
+
+              import_dashboard() {
+                local file="$1" folder_uid="$2"
+                local temp_file=$(mktemp)
+                jq '.id=null' "$file" > "$temp_file"
+                local payload_json=$(jq -n --argjson db "$(cat "$temp_file")" --arg uid "$folder_uid" --argjson ow "$OVERWRITE" '{dashboard:$db,folderUid:$uid,overwrite:$ow}')
+                rm "$temp_file"
+                for i in {1..3}; do
+                  http_code=$(echo "$payload_json" | curl -s -o /dev/null -w '%{http_code}' -X POST -H "$AUTH_HEADER" -H "$JSON_HEADER" -d @- "$GRAFANA_URL/api/dashboards/db")
+                  if [[ "$http_code" == "200" ]]; then
+                    echo "✅ Imported ${file#$LOCAL_ROOT/}"
+                    return
+                  fi
+                  sleep 5
+                done
+                echo "❌ Failed to import dashboard ($file)" >&2
+                exit 1
+              }
+
+              echo "🚀 Processing dashboards..."
+              cd "$LOCAL_ROOT"
+              find . -type d | sort | while read -r rel_dir; do
+                [[ "$rel_dir" == "." ]] && continue
+                title=$(basename "$rel_dir")
+                parent_path=$(dirname "$rel_dir")
+                parent_uid="${UIDMAP[$parent_path]:-}"
+                uid=$(create_folder "$title" "$parent_uid")
+                UIDMAP["$rel_dir"]="$uid"
+                echo "📁 Folder '${rel_dir}' → uid=$uid"
+                find "$LOCAL_ROOT/$rel_dir" -maxdepth 1 -name '*.json' -type f | while read -r json; do
+                  import_dashboard "$json" "$uid"
+                done
+              done
+              echo "✅ All dashboards uploaded!"

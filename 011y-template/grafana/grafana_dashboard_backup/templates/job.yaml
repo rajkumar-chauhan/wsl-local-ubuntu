@@ -1,0 +1,199 @@
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "grafana-dashboard-uploader.fullname" . }}
+  labels:
+    {{- include "grafana-dashboard-uploader.labels" . | nindent 4 }}
+spec:
+  backoffLimit: 4  # Increased retries for network resiliency
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/inject: "false"
+    spec:
+      dnsPolicy: "ClusterFirst"
+      dnsConfig:
+        nameservers:
+          - 8.8.8.8
+          - 1.1.1.1
+        options:
+          - name: ndots
+            value: "2"
+      restartPolicy: Never
+      containers:
+        - name: uploader
+          image: ubuntu:22.04
+          env:
+            - name: TZ
+              value: "UTC"
+          command:
+            - /bin/bash
+            - -c
+            - |
+              set -eo pipefail
+              echo "🔄 Starting dashboard upload process..."
+              
+              # Dependency installation with retry logic
+              for i in {1..3}; do
+                echo "🔧 Attempt $i: Installing dependencies..."
+                if apt update && apt install -y curl jq uuid-runtime; then
+                  break
+                fi
+                if [[ $i -eq 3 ]]; then
+                  echo "❌ Failed to install dependencies after 3 attempts"
+                  exit 1
+                fi
+                sleep 5
+              done
+
+              # Configuration
+              GRAFANA_URL="{{ .Values.grafana.url }}"
+              ADMIN_USER="{{ .Values.grafana.adminUser }}"
+              ADMIN_PASSWORD=$(cat /grafana-secret/{{ .Values.grafana.adminPasswordKey }})
+              AUTH_HEADER="Authorization: Basic $(echo -n ${ADMIN_USER}:${ADMIN_PASSWORD} | base64 -w0)"
+              JSON_HEADER="Content-Type: application/json"
+              LOCAL_ROOT="{{ .Values.dashboards.mountPath }}"
+              OVERWRITE="{{ .Values.dashboards.overwrite | default "true" }}"
+
+              # URL encoding helper
+              urlencode() { 
+                jq -rn --arg v "$1" '$v|@uri'
+              }
+
+              # Folder UID cache
+              declare -A UIDMAP
+              UIDMAP["."]=""
+
+              # Folder management functions
+              search_folder_uids() {
+                local title="$1"
+                curl -s -H "$AUTH_HEADER" "${GRAFANA_URL}/api/search?type=dash-folder&query=$(urlencode "$title")" | 
+                  jq -r '.[].uid'
+              }
+
+              get_parent_uid() {
+                curl -s -H "$AUTH_HEADER" "${GRAFANA_URL}/api/folders/$1" | jq -r '.parentUid // empty'
+              }
+
+              create_folder() {
+                local title="$1" parent_uid="$2"
+                
+                # Check if folder exists with same parent
+                for uid in $(search_folder_uids "$title"); do
+                  if [[ "$(get_parent_uid "$uid")" == "$parent_uid" ]]; then
+                    echo "$uid"
+                    return
+                  fi
+                done
+
+                # Create new folder
+                local new_uid=$(uuidgen | tr '[:upper:]' '[:lower:]' | cut -c1-12)
+                local payload_json
+                
+                if [[ -n "$parent_uid" ]]; then
+                  payload_json=$(jq -n --arg t "$title" --arg u "$new_uid" --arg p "$parent_uid" '{title:$t,uid:$u,parentUid:$p}')
+                else
+                  payload_json=$(jq -n --arg t "$title" --arg u "$new_uid" '{title:$t,uid:$u}')
+                fi
+
+                resp=$(curl -s -X POST "${GRAFANA_URL}/api/folders" \
+                  -H "$AUTH_HEADER" \
+                  -H "$JSON_HEADER" \
+                  -d "$payload_json")
+
+                uid=$(echo "$resp" | jq -r '.uid // empty')
+                if [[ -z "$uid" ]]; then
+                  echo "❌ Failed to create folder '$title' - $resp" >&2
+                  exit 1
+                fi
+                echo "$uid"
+              }
+
+              # Dashboard import function with retry logic
+              import_dashboard() {
+                local file="$1" folder_uid="$2"
+                local temp_file=$(mktemp)
+                
+                # Prepare dashboard payload
+                jq '.id=null' "$file" > "$temp_file"
+                
+                local payload_json=$(jq -n \
+                  --argjson db "$(cat "$temp_file")" \
+                  --arg uid "$folder_uid" \
+                  --argjson ow "$OVERWRITE" \
+                  '{dashboard:$db,folderUid:$uid,overwrite:$ow}')
+
+                rm "$temp_file"
+
+                # Try import with retry
+                for i in {1..3}; do
+                  http_code=$(echo "$payload_json" | \
+                    curl -s -o /dev/null -w '%{http_code}' \
+                    -X POST \
+                    -H "$AUTH_HEADER" \
+                    -H "$JSON_HEADER" \
+                    -d @- \
+                    "${GRAFANA_URL}/api/dashboards/db")
+
+                  if [[ "$http_code" == "200" ]]; then
+                    echo "✅ Imported ${file#$LOCAL_ROOT/}"
+                    return
+                  fi
+                  
+                  if [[ $i -lt 3 ]]; then
+                    echo "⚠️  Attempt $i failed ($http_code) - retrying ${file#$LOCAL_ROOT/} in 5s..."
+                    sleep 5
+                  fi
+                done
+
+                echo "❌ Failed to import dashboard after 3 attempts (${http_code}) - ${file#$LOCAL_ROOT/}" >&2
+                exit 1
+              }
+
+              # Main execution
+              echo "📂 Reconstructing folder structure..."
+              mkdir -p "$LOCAL_ROOT"
+              cd "$LOCAL_ROOT"
+
+              # Copy dashboards from configmap
+              find /dashboards_configmap -type f | while read -r f; do
+                path=$(basename "$f" | sed 's|__|/|g')
+                mkdir -p "$(dirname "$path")"
+                cp "$f" "$path" && echo "📄 Copied $path"
+              done
+
+              echo "🔄 Processing dashboard folders..."
+              cd "$LOCAL_ROOT"
+              find . -type d | sort | while read -r rel_dir; do
+                [[ "$rel_dir" == "." ]] && continue
+                
+                title=$(basename "$rel_dir")
+                parent_path=$(dirname "$rel_dir")
+                parent_uid="${UIDMAP[$parent_path]:-}"
+                uid=$(create_folder "$title" "$parent_uid")
+                UIDMAP["$rel_dir"]="$uid"
+                echo "📁 Folder '${rel_dir}' → uid=$uid"
+                
+                # Process dashboards in each folder using -exec to avoid argument limits
+                find "$LOCAL_ROOT/$rel_dir" -maxdepth 1 -name '*.json' -type f -print0 | \
+                  while IFS= read -r -d '' json; do
+                    import_dashboard "$json" "$uid"
+                  done
+              done
+
+              echo "✅ All dashboards processed successfully"
+              exit 0
+          volumeMounts:
+            - name: dashboards
+              mountPath: /dashboards_configmap
+            - name: grafana-secret
+              mountPath: /grafana-secret
+              readOnly: true
+      volumes:
+        - name: dashboards
+          configMap:
+            name: {{ .Values.dashboards.configMapName }}
+        - name: grafana-secret
+          secret:
+            secretName: {{ .Values.grafana.adminPasswordSecret }}

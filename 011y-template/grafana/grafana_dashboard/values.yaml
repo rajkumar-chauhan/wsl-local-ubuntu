@@ -1,0 +1,20 @@
+
+
+
+grafana:
+  url: http://grafana.monitoring.svc.cluster.local
+  adminUser: admin
+  adminPasswordSecret: grafana
+  adminPasswordKey: admin-password
+
+dashboards:
+  mountPath: /dashboards
+  folders:
+    - Application
+    - Database
+    - Kubernetes
+    - LAB
+    - Middleware
+    - Observability-component
+    - SRE
+    - Uniteconpro

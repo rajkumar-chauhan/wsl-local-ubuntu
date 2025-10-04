@@ -1,0 +1,14 @@
+apiVersion: opentelemetry.io/v1alpha1
+kind: Instrumentation
+metadata:
+  name: java-non-root-instrumentation
+  namespace: dev 
+spec:
+  # This is the correct location for podSecurityContext
+  podSecurityContext:
+    runAsUser: 1000
+    runAsGroup: 1000
+    runAsNonRoot: true
+  java: {} # Java instrumentation is enabled
+  exporter:
+    endpoint: "http://otel-collector-headless.monitoring.svc.cluster.local:4317"

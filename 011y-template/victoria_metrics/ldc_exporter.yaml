@@ -1,0 +1,24 @@
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMStaticScrape
+metadata:
+  name: node-exporters
+  namespace: monitoring
+spec:
+  jobName: "node-exporter"
+  targetEndpoints:
+  - targets:
+    - 192.168.10.128:9100 
+    - 192.168.10.202:9100 
+    - 192.168.10.21:9100 
+    - 192.168.10.28:9100 
+    - 192.168.8.116:9100 
+    - 192.168.8.3:9100 
+    - 192.168.8.42:9100 
+    - 192.168.8.4:9100 
+    - 192.168.8.6:9100 
+    - 192.168.8.82:9100 
+    - 192.168.8.92:9100 
+    
+    labels:
+      cluster: COE
+      component: node-exporter

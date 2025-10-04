@@ -1,0 +1,20 @@
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMServiceScrape
+metadata:
+  name: loki
+  namespace: monitoring
+  labels:
+    release: vmagent
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: query-frontend
+      app.kubernetes.io/name: loki
+  namespaceSelector:
+    matchNames:
+      - logging
+  endpoints:
+    - port: http-metrics
+      path: /metrics
+      interval: 30s
+

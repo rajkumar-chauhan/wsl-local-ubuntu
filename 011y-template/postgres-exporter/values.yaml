@@ -1,0 +1,42 @@
+postgres-exporters:
+  image:
+    repository: "prometheuscommunity/postgres-exporter"
+    tag: "v0.17.1"
+
+  fullnameOverride: "rds-postgres-exporter"
+
+  config:
+    datasource:
+      host: "aws-1-ap-south-1.pooler.supabase.com"
+      user: "postgres.wyicdujeqnirbknqbgla"
+      password: "0465f23ef34d9d076abe1540d27691e1"
+      port: "6543"
+      database: "postgres"
+      sslmode: "require"
+
+    extraArgs:
+      - "--collector.stat_statements"
+      - "--collector.long_running_transactions"
+      - "--collector.process_idle"
+      - "--collector.stat_wal_receiver"
+      - "--collector.statio_user_indexes"
+
+  # resources:
+  #   limits:
+  #     cpu: 250m
+  #     memory: 192Mi
+  #   requests:
+  #     cpu: 100m
+  #     memory: 128Mi
+
+  # serviceMonitor:
+  #   enabled: true
+  #   interval: 30s
+  #   scrapeTimeout: 10s
+  #   namespace: observability
+  #   targetLabels:
+  #     - app
+  #   metricRelabelings:
+  #     - sourceLabels: [pod]
+  #       targetLabel: instance
+  #       action: replace

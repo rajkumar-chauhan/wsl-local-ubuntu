@@ -1,0 +1,107 @@
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMRule
+metadata:
+  name: service-alerts
+  namespace: monitoring
+spec:
+  groups:
+  - name: Servicehealth.rules
+    rules:
+
+    - alert: ServicePodCrashLoopBackOff
+      expr: |
+        kube_pod_container_status_waiting_reason{reason="CrashLoopBackOff"}
+        * on(pod) group_left(label_rems_application_group, labels.label_rems_service) (
+          kube_pod_labels{label_rems_application_group!="", labels.label_rems_service!=""}
+        ) > 0
+      for: 5m
+      labels:
+        severity: critical
+        alert: kubernetes
+        team: coe
+        app: service
+        
+      annotations:
+        summary: "Pod is crashlooping"
+        description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} (app={{ $labels.label_rems_service }}, group={{ $labels.label_rems_application_group }}) is crashlooping."
+
+    - alert: ServicePodRestarts
+      expr: |
+        (rate(kube_pod_container_status_restarts_total{job="kube-state-metrics"}[5m]) * 60 * 5)
+        * on(pod) group_left(label_rems_application_group, label_rems_service) (
+          kube_pod_labels{label_rems_application_group!="", label_rems_service!=""}
+        ) > 3
+      for: 10m
+      labels:
+        severity: critical
+        alert: kubernetes
+        team: coe
+        app: service
+       
+      annotations:
+        summary: " Pod is Restarting"
+        description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} is restarting more than 3 times in 5m."
+
+    - alert: ServicePodNotReady
+      expr: |
+        (
+          sum by (namespace, pod, env) (
+            max by(namespace, pod, env) (
+              kube_pod_status_phase{job="kube-state-metrics", phase=~"Pending|Unknown"}
+            )
+            * on(pod) group_left(owner_kind, env) topk by(namespace, pod) (
+              1, max by(pod, owner_kind, env) (kube_pod_owner{owner_kind!="Job"})
+            )
+          )
+        )
+        * on(pod) group_left(label_rems_application_group, label_rems_service) (
+          kube_pod_labels{label_rems_application_group!="", label_rems_service!=""}
+        ) > 0
+      for: 10m
+      labels:
+        severity: critical
+        alert: kubernetes
+        team: coe
+        app: service
+        
+      annotations:
+        summary: "Pod pending or unknown"
+        description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} has been Pending/Unknown for >10m."
+
+    - alert: ServiceContainerWaiting
+      expr: |
+        sum by (namespace, pod, container, env) (
+          kube_pod_container_status_waiting_reason{job="kube-state-metrics"}
+        )
+        * on(pod) group_left(label_rems_application_group, label_rems_service) (
+          kube_pod_labels{label_rems_application_group!="", label_rems_service!=""}
+        ) > 0
+      for: 5m
+      labels:
+        severity: critical
+        alert: kubernetes
+        team: coe
+        app: service
+        
+      annotations:
+        summary: "Pod stuck in waiting state"
+        description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }}  has been in waiting state."
+
+    - alert: ServiceCPUThrottlingHigh
+      expr: |
+        sum(
+          rate(container_cpu_cfs_throttled_periods_total{container!="POD", container!=""}[5m])
+        ) by (namespace, pod)
+        * on(pod) group_left(label_rems_application_group, label_rems_service) (
+          kube_pod_labels{label_rems_application_group!="", label_rems_service!=""}
+        ) > 0
+      for: 5m
+      labels:
+        severity: critical
+        alert: kubernetes
+        team: coe
+        app: service
+        
+      annotations:
+        summary: "Pod CPU throttling high"
+        description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} is experiencing CPU throttling."
