@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: java-demo-new
+  namespace: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: java-demo-new
+  template:
+    metadata:
+      labels:
+        app: java-demo-new
+    spec:
+      volumes:
+      - name: pyroscope
+        emptyDir: {}
+
+      initContainers:
+      - name: pyroscope-agent
+        image: curlimages/curl:latest
+        imagePullPolicy: Never
+        command:
+        - sh
+        - -c
+        - |
+          curl -L -o /pyroscope/pyroscope.jar \
+          https://github.com/grafana/pyroscope-java/releases/latest/download/pyroscope.jar
+        volumeMounts:
+        - name: pyroscope
+          mountPath: /pyroscope
+
+      containers:
+      - name: app
+        image: java-demo:1.0
+        imagePullPolicy: Never
+        volumeMounts:
+        - name: pyroscope
+          mountPath: /pyroscope
+        env:
+        - name: JAVA_TOOL_OPTIONS
+          value: >
+            -javaagent:/pyroscope/pyroscope.jar
+            -Dpyroscope.application.name=java-demo-new
+            -Dpyroscope.server.address=http://pyroscope:4040
+            -Dpyroscope.format=jfr
